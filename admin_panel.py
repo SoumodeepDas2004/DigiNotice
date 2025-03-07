@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QFileDialog, QListWidget
+from PyQt5.QtWidgets import QWidget, QVBoxLayout,QHBoxLayout, QPushButton, QLabel, QFileDialog, QListWidget,QLineEdit
 from notice_manager import add_notice, get_all_notices, delete_notice
 from auth import get_all_users, delete_user
 from summarization import summarize_file
@@ -17,11 +17,17 @@ class AdminPanel(QWidget):
         layout.addWidget(QLabel("📜 Notices:"))
         layout.addWidget(self.notice_list)
         self.refresh_notices()
-
+        
+        r=QHBoxLayout()
+        self.Nnoticename=QLineEdit()
+        self.Nnoticename.setPlaceholderText("Enter Notice Name")
         upload_btn = QPushButton("📤 Upload Notice")
-        upload_btn.clicked.connect(self.upload_notice)
-        layout.addWidget(upload_btn)
-
+        upload_btn.clicked.connect(self.upload_notice) 
+        r.addWidget(QLabel("Notice Name"))
+        r.addWidget(self.Nnoticename)
+        r.addWidget(upload_btn)
+        layout.addLayout(r)
+        
         delete_notice_btn = QPushButton("❌ Delete Selected Notice")
         delete_notice_btn.clicked.connect(self.delete_selected_notice)
         layout.addWidget(delete_notice_btn)
@@ -57,8 +63,9 @@ class AdminPanel(QWidget):
     def upload_notice(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Upload Notice", "", "PDF Files (*.pdf);;Image Files (*.png *.jpg *.jpeg)")
         if file_path:
+            Noticename=self.Nnoticename.text()
             summary = summarize_file(file_path)
-            add_notice(file_path, "Content extracted from file", summary)
+            add_notice(Noticename, "Content extracted from file", summary)
             self.refresh_notices()
 
     def delete_selected_notice(self):

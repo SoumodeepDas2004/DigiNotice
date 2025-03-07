@@ -4,10 +4,10 @@ class Database:
     def __init__(self):
         self.conn = mysql.connector.connect(
             #pendingdata
-            host="your_server_ip",
-            user="your_user",
-            password="your_password",
-            database="your_database"
+            host="127.0.0.1",
+            user="admin092004",
+            password="@Admin2004",
+            database="digiNotice1.0"
         )
         self.cursor = self.conn.cursor()
 

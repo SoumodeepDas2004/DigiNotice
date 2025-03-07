@@ -6,9 +6,11 @@ import re
 import nltk
 from nltk.tokenize import sent_tokenize
 from nltk.corpus import stopwords
+nltk.data.find('tokenizers/punkt/english.pickle')
+print("✅ NLTK 'punkt' is installed correctly!")
 
-nltk.download('punkt')
-nltk.download('stopwords')
+nltk.download('punkt')       # ✅ Sentence tokenizer (Required)
+nltk.download('stopwords')   # ✅ Stopwords (Required)
 
 # 🔹 Extract Text from PDF
 def extract_text_from_pdf(pdf_path):
@@ -35,16 +37,30 @@ def clean_text(text):
     return text
 
 # 🔹 Summarize Extracted Text
+from nltk.tokenize import sent_tokenize
+import nltk
+from nltk.tokenize.punkt import PunktSentenceTokenizer
+from nltk.tokenize import sent_tokenize
+
+# Ensure required data is downloaded
+nltk.download('punkt')
+nltk.download('stopwords')
+
+
+
+
+# Initialize the Punkt tokenizer
+punkt_tokenizer = PunktSentenceTokenizer()
+
 def summarize_text(text, max_sentences=3):
     """Summarizes the extracted text by selecting key sentences."""
-    sentences = sent_tokenize(text)
-    if len(sentences) <= max_sentences:
-        return text  # If text is already short, return as is
+    if not text.strip():  # ✅ Handle empty text
+        return "No text extracted for summarization."
 
-    stop_words = set(stopwords.words("english"))
-    important_sentences = [sent for sent in sentences if len(set(sent.split()) - stop_words) > 3]
+    sentences = punkt_tokenizer.tokenize(text)  # ✅ Use PunktTokenizer instead of sent_tokenize()
 
-    return ' '.join(important_sentences[:max_sentences])
+    return ' '.join(sentences[:max_sentences]) if sentences else "No sentences found."
+
 
 # 🔹 Summarize Notices (PDF or Image)
 def summarize_file(file_path):
@@ -59,3 +75,17 @@ def summarize_file(file_path):
     cleaned_text = clean_text(text)
     summary = summarize_text(cleaned_text)
     return summary
+
+
+import pytesseract
+import cv2
+
+# ✅ Set the Tesseract path manually (if needed)
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+def extract_text_from_image(image_path):
+    """Extracts text from an image using Tesseract OCR."""
+    image = cv2.imread(image_path)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
+    text = pytesseract.image_to_string(gray)
+    return text.strip()

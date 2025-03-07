@@ -1,13 +1,13 @@
+
 import mysql.connector
 
 class Database:
     def __init__(self):
         self.conn = mysql.connector.connect(
-            #pendingdata
             host="127.0.0.1",
             user="admin092004",
             password="@Admin2004",
-            database="digiNotice1.0"
+            database="notice_board_db"
         )
         self.cursor = self.conn.cursor()
 

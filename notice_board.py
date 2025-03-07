@@ -34,6 +34,7 @@ class NoticeBoard(QWidget):
         print("🔍 Notices Fetched:", latest_notices)  # Debugging print
 
         for i, notice in enumerate(latest_notices):
+            
             self.notice_labels[i].setText(f"📢 {notice[0]}: {notice[1]}")  # ✅ Show Title & Content
 
     def showEvent(self, event):

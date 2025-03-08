@@ -1,7 +1,10 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit
 from database import Database
-
+import hashlib,re
 db = Database()
+
+def is_valid_password(password):
+    return bool(re.fullmatch(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()-_])[A-Za-z\d!@#$%^&*()-_]{6,}$", password))
 
 # 🔹 Register User
 def register_user(unique_id, name, password):
@@ -23,7 +26,7 @@ def get_all_users():
 def delete_user(unique_id):
     query = "DELETE FROM users WHERE unique_id = %s"
     db.execute_query(query, (unique_id,))
-
+    
 # 🔹 Login Page UI (QWidget for StackedWidget)
 class LoginPage(QWidget):
     def __init__(self, main_window):
@@ -60,10 +63,11 @@ class LoginPage(QWidget):
     def login(self):
         unique_id = self.unique_id_input.text()
         name = self.name_input.text()
-        password = self.password_input.text()
+        password = self.password_input.text()  # ✅ Get password input
 
         if unique_id.isdigit() and len(unique_id) == 4:
-            if login_user(unique_id, name, password):
+            if login_user(unique_id, name, password):  # ✅ Pass all three arguments
+                self.main_window.logged_in_user_id = unique_id  # ✅ Store logged-in user ID
                 if unique_id == "0001":  # Example: Admin has Unique ID 0001
                     self.main_window.stack.setCurrentWidget(self.main_window.admin_panel_page)
                 else:
@@ -73,13 +77,19 @@ class LoginPage(QWidget):
         else:
             self.label.setText("❌ Unique ID must be 4 digits!")
 
+
     def register(self):
         unique_id = self.unique_id_input.text()
         name = self.name_input.text()
         password = self.password_input.text()
 
+        if not is_valid_password(password):
+            self.label.setText("❌ Password must be alphanumeric with 1-2 special characters!")
+            return
+
         if unique_id.isdigit() and len(unique_id) == 4:
-            register_user(unique_id, name, password)
+            register_user(unique_id, name, password)  # ✅ Save valid password
             self.label.setText("✅ User Registered! Try Logging in.")
         else:
             self.label.setText("❌ Unique ID must be 4 digits!")
+

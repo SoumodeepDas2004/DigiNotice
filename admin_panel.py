@@ -63,10 +63,11 @@ class AdminPanel(QWidget):
     def upload_notice(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Upload Notice", "", "PDF Files (*.pdf);;Image Files (*.png *.jpg *.jpeg)")
         if file_path:
-            Noticename=self.Nnoticename.text()
+            Noticename = self.Nnoticename.text()
             summary = summarize_file(file_path)
-            add_notice(Noticename, "Content extracted from file", summary)
+            add_notice(Noticename, "Content extracted from file", summary, file_path)  # ✅ Now storing file path
             self.refresh_notices()
+
 
     def delete_selected_notice(self):
         selected_item = self.notice_list.currentItem()

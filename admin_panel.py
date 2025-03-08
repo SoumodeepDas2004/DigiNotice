@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout,QHBoxLayout, QPushButton, QLabel, QFileDialog, QListWidget,QLineEdit
-from notice_manager import add_notice, get_all_notices, delete_notice
+from notice_manager import add_notice, get_latest_notices, delete_notice
 from auth import get_all_users, delete_user
 from summarization import summarize_file
 
@@ -54,12 +54,6 @@ class AdminPanel(QWidget):
 
         self.setLayout(layout)
 
-    def refresh_notices(self):
-        self.notice_list.clear()
-        notices = get_all_notices()
-        for notice in notices:
-            self.notice_list.addItem(f"{notice[0]}: {notice[1]}")  # ID: Title
-
     def upload_notice(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Upload Notice", "", "PDF Files (*.pdf);;Image Files (*.png *.jpg *.jpeg)")
         if file_path:
@@ -70,11 +64,29 @@ class AdminPanel(QWidget):
 
 
     def delete_selected_notice(self):
+        """Deletes the selected notice and refreshes the UI."""
         selected_item = self.notice_list.currentItem()
+        
         if selected_item:
-            notice_id = selected_item.text().split(":")[0]  # Extract ID from text
-            delete_notice(notice_id)
-            self.refresh_notices()
+            notice_text = selected_item.text()  # Example: "📢 Notice-3 (2025-03-08 16:30)"
+            
+            try:
+                notice_id = int(notice_text.split()[1].split("-")[1])  # ✅ Extract number part safely
+                delete_notice(notice_id)  # ✅ Ensure `notice_id` is an integer
+                self.refresh_notices()  # ✅ Refresh UI
+                self.main_window.notice_board_page.refresh_notices()
+            except (ValueError, IndexError):
+                print("❌ Error: Could not extract a valid notice ID!")
+            
+    def refresh_notices(self):
+        """Fetch and display the latest notices after deletion."""
+        self.notice_list.clear()  # ✅ Only clear notice list, not entire layout
+
+        latest_notices = get_latest_notices(5)  # ✅ Fetch latest notices
+
+        for notice in latest_notices:
+            title, content, file_path, notice_time = notice  # ✅ Unpack values correctly
+            self.notice_list.addItem(f"📢 {title} ({notice_time})")  # ✅ Display title & time
 
     def refresh_users(self):
         self.user_list.clear()

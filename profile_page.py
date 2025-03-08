@@ -32,10 +32,20 @@ class ProfilePage(QWidget):
         layout.addWidget(update_btn)
 
         back_btn = QPushButton("Back")
-        back_btn.clicked.connect(lambda: self.main_window.stack.setCurrentWidget(self.main_window.notice_board_page))
+        back_btn.clicked.connect(self.go_back)
         layout.addWidget(back_btn)
 
         self.setLayout(layout)
+
+    def go_back(self):
+        """Redirect the user to the correct page after editing their profile."""
+        if hasattr(self.main_window, "logged_in_user_id"):  # ✅ Check if user ID exists
+            if self.main_window.logged_in_user_id == "0001":  # ✅ If admin (ID = 0001)
+                self.main_window.stack.setCurrentWidget(self.main_window.admin_panel_page)
+            else:
+                self.main_window.stack.setCurrentWidget(self.main_window.notice_board_page)
+        else:
+            print("❌ Error: No user logged in!")
 
     def load_user_data(self, unique_id):
         """Loads user data into the input fields."""
@@ -53,11 +63,8 @@ class ProfilePage(QWidget):
         new_password = self.password_input.text()
 
         if new_name and new_password:
-            if not is_valid_password(new_password):
-                QMessageBox.warning(self, "Error", "❌ Password must be alphanumeric with 1-2 special characters!")
-                return
-
-            hashed_password = hashlib.sha256(new_password.encode()).hexdigest()  # ✅ Hash password
+            # ✅ Hash the new password before saving
+            hashed_password = hashlib.sha256(new_password.encode()).hexdigest()
 
             query = "UPDATE users SET name = %s, password = %s WHERE unique_id = %s"
             db.execute_query(query, (new_name, hashed_password, unique_id))

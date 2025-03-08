@@ -8,13 +8,27 @@ def is_valid_password(password):
 
 # 🔹 Register User
 def register_user(unique_id, name, password):
+    """Check if the unique_id already exists before inserting."""
+    check_query = "SELECT unique_id FROM users WHERE unique_id = %s"
+    result = db.fetch_data(check_query, (unique_id,))
+
+    if result:  # ✅ If result is not empty, the ID already exists
+        return "❌ This ID is already taken!"
+
+    hashed_password = hashlib.sha256(password.encode()).hexdigest()  # ✅ Hash password
     query = "INSERT INTO users (unique_id, name, password) VALUES (%s, %s, %s)"
-    db.execute_query(query, (unique_id, name, password))
+    db.execute_query(query, (unique_id, name, hashed_password))
+    
+    return "✅ User Registered Successfully!"
 
 # 🔹 Login User
 def login_user(unique_id, name, password):
+    """Hashes input password and compares it with the hashed password stored in DB"""
+    hashed_password = hashlib.sha256(password.encode()).hexdigest()  # ✅ Hash input password
+
     query = "SELECT * FROM users WHERE unique_id = %s AND name = %s AND password = %s"
-    result = db.fetch_data(query, (unique_id, name, password))
+    result = db.fetch_data(query, (unique_id, name, hashed_password))  # ✅ Compare hashed password
+    
     return bool(result)  # Returns True if user exists
 
 # 🔹 Get All Users (For Admin Panel)
@@ -77,19 +91,13 @@ class LoginPage(QWidget):
         else:
             self.label.setText("❌ Unique ID must be 4 digits!")
 
-
     def register(self):
         unique_id = self.unique_id_input.text()
         name = self.name_input.text()
         password = self.password_input.text()
 
-        if not is_valid_password(password):
-            self.label.setText("❌ Password must be alphanumeric with 1-2 special characters!")
-            return
-
         if unique_id.isdigit() and len(unique_id) == 4:
-            register_user(unique_id, name, password)  # ✅ Save valid password
-            self.label.setText("✅ User Registered! Try Logging in.")
+            message = register_user(unique_id, name, password)  # ✅ Get success/error message
+            self.label.setText(message)  # ✅ Show the message in the UI
         else:
             self.label.setText("❌ Unique ID must be 4 digits!")
-

@@ -1,7 +1,9 @@
 from database import Database
 import os
-db = Database()
 
+import mimetypes
+import os
+db = Database()
 def upload_notice(title, content):
     query = "INSERT INTO notices (title, content) VALUES (%s, %s)"
     db.execute_query(query, (title, content))
@@ -20,14 +22,11 @@ def add_notice(title, content, summary, file_path):
 
 
 # 🔹 Get Latest Notices (for Notice Board)
-import mimetypes
-import os
 
-import mimetypes
-import os
+
+
 
 def get_latest_notices(limit=3):
-    """Fetch the latest notices, including timestamps, summaries, and file paths."""
     query = "SELECT title, content, file_path, summary, created_at FROM notices ORDER BY created_at DESC LIMIT %s"
     notices = db.fetch_data(query, (limit,))
 
@@ -68,18 +67,25 @@ def get_summarized_notices(limit=5):
 
 # 🔹 Get All Notices (for Admin Panel)
 def get_all_notices():
-    query = "SELECT id, title, file_path FROM notices"
+    query = "SELECT id, title, summary,created_at,file_path FROM notices ORDER BY created_at DESC"
     return db.fetch_data(query)
 
 
 # 🔹 Delete Notice by ID
 def delete_notice(notice_id):
-    """Deletes a notice and resets the ID order using a temporary table."""
-    delete_query = "DELETE FROM notices WHERE id = %s"
-    db.execute_query(delete_query, (notice_id,))
+    try:
+        query = """DELETE FROM notices WHERE id = %s;"""
+        db.execute_query(query, (notice_id,), multi=False)  # Use your existing method
 
-    reset_query = """
-        CREATE TABLE temp_notices AS SELECT title, content, summary, file_path, created_at FROM notices ORDER BY id;
+        print(f"✅ Notice with ID {notice_id} deleted successfully!")
+
+    except Exception as err:
+        print(f"❌ Error deleting notice: {err}")
+    
+    refreshid()
+
+def refreshid():
+        queryre=""" CREATE TABLE temp_notices AS SELECT title, content, summary, file_path, created_at FROM notices ORDER BY id;
         DROP TABLE notices;
         CREATE TABLE notices (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -92,5 +98,6 @@ def delete_notice(notice_id):
         INSERT INTO notices (title, content, summary, file_path, created_at)
         SELECT title, content, summary, file_path, created_at FROM temp_notices;
         DROP TABLE temp_notices;
-    """
-    db.execute_query(reset_query)
+        """
+        db.execute_query(queryre,multi=True)
+    

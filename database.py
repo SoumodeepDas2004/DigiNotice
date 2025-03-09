@@ -11,9 +11,10 @@ class Database:
         )
         self.cursor = self.conn.cursor()
 
-    def execute_query(self, query, params=None):
-        self.cursor.execute(query, params or ())
+    def execute_query(self, query, params=None, multi=False):
+        self.cursor.execute(query, params or (), multi=multi)
         self.conn.commit()
+
 
     def fetch_data(self, query, params=None):
         self.cursor.execute(query, params or ())

@@ -44,28 +44,32 @@ class NoticeBoard(QWidget):
 
         latest_notices = get_latest_notices(3)
 
-        # Clear previous notices
+        # ✅ Remove existing notice labels and buttons before adding new ones
         for widget in self.notice_labels:
-            widget.setParent(None)
+            widget.deleteLater()  # Properly remove from UI
         self.notice_labels.clear()
 
+        # ✅ Find and remove old download buttons
+        for i in reversed(range(self.layout.count())):
+            item = self.layout.itemAt(i)
+            if isinstance(item.widget(), QPushButton) and item.widget().text() == "⬇️ Download":
+                item.widget().deleteLater()  # Remove old download buttons
+
+        # ✅ Add new notices and buttons
         for title, content, file_path, notice_time in latest_notices:
             notice_label = QLabel(f"<b>{title}</b> at ({notice_time})->\n{content}")
             notice_label.setWordWrap(True)
             notice_label.setFixedWidth(500)
             self.layout.addWidget(notice_label)
 
-
-
-            self.layout.addWidget(notice_label)
-            self.setMaximumWidth(800)  # Set a max width for the main window
-
-            if file_path and os.path.exists(file_path) and title:  # ✅ Add Download Button
+            if file_path and os.path.exists(file_path):  
                 download_btn = QPushButton("⬇️ Download")
                 download_btn.clicked.connect(lambda checked, path=file_path: self.download_file(path))
                 self.layout.addWidget(download_btn)
-        
+
             self.notice_labels.append(notice_label)
+
+        self.setMaximumWidth(800) 
 
     def download_file(self, file_path):
         """Opens the file location to let the user download it."""

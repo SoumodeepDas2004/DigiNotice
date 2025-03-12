@@ -14,7 +14,7 @@ class ProfilePage(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
-        self.profile_pic_path = ""  # Store profile picture path
+        self.profile_pic_path = "profile_pics\default.jpg"  # Store profile picture path
 
         # 🔹 Main Layout
         layout = QVBoxLayout()

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit, QMessageBox
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit, QMessageBox,QHBoxLayout
 from database import Database
 import hashlib  # ✅ Added for password hashing
 from auth import is_valid_password
@@ -10,29 +10,39 @@ class ProfilePage(QWidget):
         self.main_window = main_window
         layout = QVBoxLayout()
 
-        self.label = QLabel("📝 Edit Your Profile")
-        layout.addWidget(self.label)
+        self.label = QLabel("📝Your Profile")
 
         self.unique_id_input = QLineEdit()
         self.unique_id_input.setPlaceholderText("Unique ID (Cannot Change)")
         self.unique_id_input.setReadOnly(True)  # Unique ID should not be editable
-        layout.addWidget(self.unique_id_input)
+       
 
         self.name_input = QLineEdit()
         self.name_input.setPlaceholderText("Enter New Name")
-        layout.addWidget(self.name_input)
 
         self.password_input = QLineEdit()
         self.password_input.setPlaceholderText("Enter New Password")
         self.password_input.setEchoMode(QLineEdit.Password)
-        layout.addWidget(self.password_input)
+        
 
         update_btn = QPushButton("Update Profile")
         update_btn.clicked.connect(self.update_profile)
-        layout.addWidget(update_btn)
+        
 
         back_btn = QPushButton("Back")
         back_btn.clicked.connect(self.go_back)
+        
+        #setting layout for profile page!
+        
+        layout.addWidget(self.label)
+        
+        self.r1=QHBoxLayout()
+        self.r1.addWidget(self.unique_id_input)
+        self.r1.addWidget(self.name_input)
+        self.r1.addWidget(self.password_input)
+        layout.addLayout(self.r1)
+
+        layout.addWidget(update_btn)
         layout.addWidget(back_btn)
 
         self.setLayout(layout)

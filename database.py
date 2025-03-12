@@ -12,7 +12,7 @@ class Database:
         self.cursor = self.conn.cursor()
 
     def execute_query(self, query, params=None, multi=False):
-        self.cursor.execute(query, params or (), multi=multi)
+        self.cursor.execute(query, params or (), multi)
         self.conn.commit()
 
 

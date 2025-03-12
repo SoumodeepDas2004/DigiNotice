@@ -93,7 +93,7 @@ class ProfilePage(QWidget):
     # ================== 🔹 LOAD USER DATA ==================
     def load_user_data(self, unique_id):
         """Loads user data into the input fields."""
-        query = "SELECT name, password, profile_pic FROM users WHERE unique_id = %s"
+        query = "SELECT name, password, profile_pic_path FROM users WHERE unique_id = %s"
         result = db.fetch_data(query, (unique_id,))
         if result:
             self.unique_id_input.setText(unique_id)
@@ -111,7 +111,7 @@ class ProfilePage(QWidget):
 
         if new_name and new_password:
             hashed_password = hashlib.sha256(new_password.encode()).hexdigest()
-            query = "UPDATE users SET name = %s, password = %s, profile_pic = %s WHERE unique_id = %s"
+            query = "UPDATE users SET name = %s, password = %s, profile_pic_path = %s WHERE unique_id = %s"
             db.execute_query(query, (new_name, hashed_password, self.profile_pic_path, unique_id))
 
             QMessageBox.information(self, "Success", "✅ Profile Updated Successfully!")

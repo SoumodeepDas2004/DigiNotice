@@ -1,6 +1,8 @@
 import os
 import shutil
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog, QMessageBox, QHBoxLayout, QScrollArea
+from PyQt5.QtGui import QFont
+from PyQt5.QtCore import Qt
 from notice_manager import get_latest_notices
 from profile_page import ProfilePage  # ✅ Import your existing ProfilePage
 
@@ -30,9 +32,23 @@ class NoticeBoard(QWidget):
     def setup_header_section(self):
         """Set up the header with title and profile edit button."""
         self.label = QLabel("📜 Welcome to the Notice Board")
+        self.label.setAlignment(Qt.AlignCenter | Qt.AlignHCenter) # Center align both vertically and horizontally
+        self.label.setFont(QFont("Arial", 24))
         self.layout.addWidget(self.label)
 
-        self.edit_profile_btn = QPushButton("Edit My Profile")
+        self.edit_profile_btn = QPushButton("Edit Profile")
+        self.edit_profile_btn.setFixedSize(100, 30)
+        self.edit_profile_btn.setStyleSheet("""
+    QPushButton {
+        color: #00ff00; /* Green text */
+        font-weight: bold;
+        background-color: #ffffff; /* White background */
+    }
+    QPushButton:hover {
+    background-color: #1de6b2;
+    color: white;
+}
+""")
         self.edit_profile_btn.clicked.connect(self.open_profile_editor)
         self.layout.addWidget(self.edit_profile_btn)
 

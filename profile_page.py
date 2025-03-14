@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import (
     QHBoxLayout, QFileDialog
 )
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
 from database import Database
 from auth import is_valid_password,LoginPage
 import shutil
@@ -86,17 +87,27 @@ class ProfilePage(QWidget):
 
     # ================== 🔹 PROFILE PICTURE UPLOAD ==================
     def upload_profile_picture(self):
-        """Allows the user to upload a profile picture."""
+        """Allows the user to upload a profile picture and updates the database."""
         file_path, _ = QFileDialog.getOpenFileName(self, "Select Profile Picture", "", "Images (*.png *.jpg *.jpeg)")
+        
         if file_path:
-            # Store the profile picture path
-            unique_id = self.unique_id_input.text()
-            new_path = f"profile_pics/{self.parent_widget.logged_in_user_id}.jpg"  # Store as user_id.jpg
+            unique_id = self.unique_id_input.text().strip()
+            if not unique_id:
+                QMessageBox.warning(self, "Error", "❌ Unique ID is missing!")
+                return
+            
+            new_path = f"profile_pics/{unique_id}.jpg"  # ✅ Store as user_id.jpg
             os.makedirs("profile_pics", exist_ok=True)
-            shutil.copy(file_path, new_path)
+            shutil.copy(file_path, new_path)  # ✅ Save the new profile picture
 
-            self.profile_pic_path = new_path
-            self.profile_pic_label.setPixmap(QPixmap(self.profile_pic_path))
+            # ✅ Update the profile picture path in the database
+            query = "UPDATE users SET profile_pic_path = %s WHERE unique_id = %s"
+            db.execute_query(query, (new_path, unique_id))
+            
+            self.profile_pic_path = new_path  # ✅ Store the new path
+            self.profile_pic_label.setPixmap(QPixmap(self.profile_pic_path).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+
+            QMessageBox.information(self, "Success", "✅ Profile picture updated successfully!")
 
     # ================== 🔹 LOAD USER DATA ==================
     def load_user_data(self,unique_id):

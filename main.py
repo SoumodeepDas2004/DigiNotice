@@ -3,6 +3,7 @@ from profile_page import ProfilePage
 from notice_board import NoticeBoard
 from admin_panel import AdminPanel
 from auth import LoginPage
+from PyQt5.QtGui import QIcon
 import sys
 
 class DigitalNoticeBoard(QMainWindow):
@@ -69,5 +70,7 @@ class DigitalNoticeBoard(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = DigitalNoticeBoard()
+    icon = QIcon("assets\icon_file\icon.jpg")
+    window.setWindowIcon(icon)
     window.show()
     sys.exit(app.exec_())

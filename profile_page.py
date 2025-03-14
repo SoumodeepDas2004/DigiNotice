@@ -6,16 +6,21 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QPixmap
 from database import Database
-from auth import is_valid_password
+from auth import is_valid_password,LoginPage
 import shutil
+
 db = Database()
 
 class ProfilePage(QWidget):
-    def __init__(self, main_window):
-        super().__init__()
-        self.main_window = main_window
-        self.profile_pic_path = "profile_pics\default.jpg"  # Store profile picture path
+    def __init__(self, parent=None, uniqueid=None):  
+        super().__init__(parent)
+        self.parent_widget = parent  
+        self.uniqueid = uniqueid if uniqueid else self.get_logged_in_user_id()
 
+        print(f"🟢 ProfilePage initialized with User ID: {self.uniqueid}")  
+
+        if not self.uniqueid:
+            print("⚠️ ERROR: No Unique ID found!")
         # 🔹 Main Layout
         layout = QVBoxLayout()
 
@@ -29,7 +34,11 @@ class ProfilePage(QWidget):
         self.setup_buttons(layout)
 
         self.setLayout(layout)
-
+    #check Uid
+    def get_logged_in_user_id(self):
+        if self.parent_widget and hasattr(self.parent_widget, "logged_in_user_id"):
+            return self.parent_widget.logged_in_user_id
+        return None
     # ================== 🔹 PROFILE PICTURE SECTION ==================
     def setup_profile_picture_section(self, layout):
         """Set up the profile picture display and upload button."""
@@ -46,7 +55,6 @@ class ProfilePage(QWidget):
     def setup_user_info_section(self, layout):
         """Set up the input fields for Unique ID, Name, and Password."""
         self.unique_id_input = QLineEdit()
-        self.unique_id_input.setPlaceholderText("Unique ID (Cannot Change)")
         self.unique_id_input.setReadOnly(True)
 
         self.name_input = QLineEdit()
@@ -83,7 +91,7 @@ class ProfilePage(QWidget):
         if file_path:
             # Store the profile picture path
             unique_id = self.unique_id_input.text()
-            new_path = f"profile_pics/{unique_id}.jpg"  # Store as user_id.jpg
+            new_path = f"profile_pics/{self.parent_widget.logged_in_user_id}.jpg"  # Store as user_id.jpg
             os.makedirs("profile_pics", exist_ok=True)
             shutil.copy(file_path, new_path)
 
@@ -91,10 +99,14 @@ class ProfilePage(QWidget):
             self.profile_pic_label.setPixmap(QPixmap(self.profile_pic_path))
 
     # ================== 🔹 LOAD USER DATA ==================
-    def load_user_data(self, unique_id):
+    def load_user_data(self,unique_id):
         """Loads user data into the input fields."""
+        #unique_id = self.main_window.logged_in_user_id  # ✅ Get user ID from main.py
+        print("✅ Profile Loaded for User:", unique_id)
+        
         query = "SELECT name, password, profile_pic_path FROM users WHERE unique_id = %s"
         result = db.fetch_data(query, (unique_id,))
+
         if result:
             self.unique_id_input.setText(unique_id)
             self.name_input.setText(result[0][0])  # Load name
@@ -105,14 +117,14 @@ class ProfilePage(QWidget):
     # ================== 🔹 UPDATE PROFILE ==================
     def update_profile(self):
         """Updates the user's profile information securely."""
-        unique_id = self.unique_id_input.text()
+        unique_id = self.unique_id_input.text()  # ✅ Get user ID from input
         new_name = self.name_input.text()
         new_password = self.password_input.text()
 
         if new_name and new_password:
             hashed_password = hashlib.sha256(new_password.encode()).hexdigest()
-            query = "UPDATE users SET name = %s, password = %s, profile_pic_path = %s WHERE unique_id = %s"
-            db.execute_query(query, (new_name, hashed_password, self.profile_pic_path, unique_id))
+            query = "UPDATE users SET name = %s, password = %s WHERE unique_id = %s"
+            db.execute_query(query, (new_name, hashed_password, unique_id))  # ✅ Use the correct user ID
 
             QMessageBox.information(self, "Success", "✅ Profile Updated Successfully!")
         else:
@@ -121,10 +133,10 @@ class ProfilePage(QWidget):
     # ================== 🔹 GO BACK ==================
     def go_back(self):
         """Redirect the user to the correct page after editing their profile."""
-        if hasattr(self.main_window, "logged_in_user_id"):
-            if self.main_window.logged_in_user_id == "0001":  # ✅ If admin (ID = 0001)
-                self.main_window.stack.setCurrentWidget(self.main_window.admin_panel_page)
+        if hasattr(self.parent_widget, "logged_in_user_id"):
+            if self.parent_widget.logged_in_user_id == "0001":  # ✅ If admin (ID = 0001)
+                self.parent_widget.stack.setCurrentWidget(self.parent_widget.admin_panel_page)
             else:
-                self.main_window.stack.setCurrentWidget(self.main_window.notice_board_page)
+                self.parent_widget.stack.setCurrentWidget(self.parent_widget.notice_board_page)
         else:
             print("❌ Error: No user logged in!")

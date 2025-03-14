@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit
 from database import Database
-import hashlib,re
+import hashlib
+import re
+
 db = Database()
 
 def is_valid_password(password):
@@ -21,15 +23,15 @@ def register_user(unique_id, name, password):
     
     return "✅ User Registered Successfully!"
 
-# 🔹 Login User
-def login_user(unique_id, name, password):
-    """Hashes input password and compares it with the hashed password stored in DB"""
+# 🔹 Login User (Now returns user details instead of just True/False)
+def login_user(unique_id, password):
+    """Hashes input password and compares it with the hashed password stored in DB."""
     hashed_password = hashlib.sha256(password.encode()).hexdigest()  # ✅ Hash input password
 
-    query = "SELECT * FROM users WHERE unique_id = %s AND name = %s AND password = %s"
-    result = db.fetch_data(query, (unique_id, name, hashed_password))  # ✅ Compare hashed password
-    
-    return bool(result)  # Returns True if user exists
+    query = "SELECT unique_id, name FROM users WHERE unique_id = %s AND password = %s"
+    result = db.fetch_data(query, (unique_id, hashed_password))  # ✅ Fetch user details
+
+    return result[0] if result else None  # ✅ Return user data instead of just True/False
 
 # 🔹 Get All Users (For Admin Panel)
 def get_all_users():
@@ -40,23 +42,22 @@ def get_all_users():
 def delete_user(unique_id):
     query = "DELETE FROM users WHERE unique_id = %s"
     db.execute_query(query, (unique_id,))
-    
+
 # 🔹 Login Page UI (QWidget for StackedWidget)
 class LoginPage(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
         layout = QVBoxLayout()
-
-        self.label = QLabel("Enter Unique ID, Name & Password:")
+        
+        self.label = QLabel("Enter Unique ID & Password:")
         layout.addWidget(self.label)
 
         self.unique_id_input = QLineEdit()
         self.unique_id_input.setPlaceholderText("Unique ID (4-digit)")
         layout.addWidget(self.unique_id_input)
-
         self.name_input = QLineEdit()
-        self.name_input.setPlaceholderText("Name")
+        self.name_input.setPlaceholderText("Name(Compulsory for registration)")
         layout.addWidget(self.name_input)
 
         self.password_input = QLineEdit()
@@ -76,20 +77,23 @@ class LoginPage(QWidget):
 
     def login(self):
         unique_id = self.unique_id_input.text()
-        name = self.name_input.text()
-        password = self.password_input.text()  # ✅ Get password input
+        password = self.password_input.text()
+        
+        print(f"🔍 Attempting login with ID: {unique_id}")  # Debugging statement
 
         if unique_id.isdigit() and len(unique_id) == 4:
-            if login_user(unique_id, name, password):  # ✅ Pass all three arguments
-                self.main_window.logged_in_user_id = unique_id  # ✅ Store logged-in user ID
-                if unique_id == "0001":  # Example: Admin has Unique ID 0001
-                    self.main_window.stack.setCurrentWidget(self.main_window.admin_panel_page)
-                else:
-                    self.main_window.stack.setCurrentWidget(self.main_window.notice_board_page)
+            user_data = login_user(unique_id, password)  # ✅ Now gets user details
+            
+            print(f"🟢 login_user() returned: {user_data}")  # Debugging statement
+            
+            if user_data:
+                self.main_window.login_success(user_data[0], user_data[1])  # ✅ Call login_success()
             else:
                 self.label.setText("❌ Invalid Credentials!")
+                print("❌ Login failed!")
         else:
             self.label.setText("❌ Unique ID must be 4 digits!")
+
 
     def register(self):
         unique_id = self.unique_id_input.text()

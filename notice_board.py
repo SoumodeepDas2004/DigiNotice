@@ -167,7 +167,15 @@ class NoticeBoard(QWidget):
                 download_btn = QPushButton("⬇️ Download")
                 download_btn.clicked.connect(lambda checked, path=file_path: self.download_file(path))
                 self.notice_layout.addWidget(download_btn)
-
+    def download_file(self, file_path):
+        """Opens the file location to let the user download it."""
+        if os.path.exists(file_path):
+            try:
+                os.startfile(file_path)  # ✅ Open in default application
+            except Exception as e:
+                QMessageBox.warning(self, "Error", f"❌ Cannot open file: {e}")
+        else:
+            QMessageBox.warning(self, "Error", "❌ File not found!")
     # ================== 🔹 LOGOUT FUNCTION ==================
     def logout(self):
         """Logs out the user and returns to the login page."""

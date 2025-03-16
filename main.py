@@ -24,7 +24,7 @@ class DigitalNoticeBoard(QMainWindow):
         self.stack.addWidget(self.login_page)
 
         self.stack.setCurrentWidget(self.login_page)  # Start at login page
-        self.stack.setCurrentWidget(self.login_page)  # ✅ Start at login page
+
         
     def print_stack_widgets(self):
         """Print all widgets currently in QStackedWidget for debugging."""

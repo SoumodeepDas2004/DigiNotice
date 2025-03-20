@@ -10,14 +10,21 @@ def is_valid_password(password):
 
 # 🔹 Register User
 def register_user(unique_id, name, password):
-    """Check if the unique_id already exists before inserting."""
+    """Check if the unique_id already exists before inserting and validate password."""
+    
+    # ❌ Check if password follows the required pattern
+    if not is_valid_password(password):
+        return "❌ Password must have at least 6 characters, including a letter, a number, and a special character!"
+    
+    # ✅ Check if the unique_id already exists
     check_query = "SELECT unique_id FROM users WHERE unique_id = %s"
     result = db.fetch_data(check_query, (unique_id,))
 
-    if result:  # ✅ If result is not empty, the ID already exists
+    if result:  # If result is not empty, the ID is taken
         return "❌ This ID is already taken!"
 
-    hashed_password = hashlib.sha256(password.encode()).hexdigest()  # ✅ Hash password
+    # ✅ Hash password and store in database
+    hashed_password = hashlib.sha256(password.encode()).hexdigest()  
     query = "INSERT INTO users (unique_id, name, password) VALUES (%s, %s, %s)"
     db.execute_query(query, (unique_id, name, hashed_password))
     

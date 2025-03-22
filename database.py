@@ -2,8 +2,10 @@ import mysql.connector
 
 class Database:
     def __init__(self):
-        """Initialize the database connection."""
+        """Initialize the database connection and ensure DB & tables exist."""
+        self.create_database_if_not_exists()
         self.connect_db()
+        self.create_tables_if_not_exist()
 
     def connect_db(self):
         """Establish a new database connection."""
@@ -19,6 +21,40 @@ class Database:
             print("✅ Database Connection Successful!")
         except mysql.connector.Error as e:
             print("❌ Database Connection Failed:", e)
+
+    def create_database_if_not_exists(self):
+        """Creates the database if it does not exist."""
+        temp_conn = mysql.connector.connect(
+            host="127.0.0.1",
+            user="admin092004",
+            password="@Admin2004"
+        )
+        temp_cursor = temp_conn.cursor()
+        temp_cursor.execute("CREATE DATABASE IF NOT EXISTS notice_board_db;")
+        temp_conn.close()
+
+    def create_tables_if_not_exist(self):
+        """Creates required tables if they do not exist."""
+        user_table_query = """
+        CREATE TABLE IF NOT EXISTS users (
+            unique_id INT PRIMARY KEY,
+            name VARCHAR(255),
+            password VARCHAR(255),
+            profile_pic_path VARCHAR(255) DEFAULT 'profile_pics/default.jpg'
+        );
+        """
+        notice_table_query = """
+        CREATE TABLE IF NOT EXISTS notices (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255),
+            content TEXT,
+            summary TEXT,
+            file_path VARCHAR(255),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """
+        self.execute_query(user_table_query)
+        self.execute_query(notice_table_query)
 
     def execute_query(self, query, values=None, multi=False):
         """Executes INSERT, UPDATE, DELETE queries safely."""

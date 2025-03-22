@@ -1,0 +1,89 @@
+### **🛠️ Requirements to Run the Digital Notice Board App**  
+#AS developer
+To run this **PyQt5-based Digital Notice Board** smoothly, ensure you meet the following requirements:
+
+---
+
+## **1️⃣ Software & Dependencies**
+### **🔹 Operating System**
+- Windows 10/11 (Preferred) ✅  
+- Linux / macOS (Supported)  
+
+### **🔹 Python Version**
+- Python **3.8+** (Recommended: Python 3.10 or later)  
+
+### **🔹 Required Python Libraries**
+Ensure the following libraries are installed before running the app.  
+Run this command to install all dependencies:
+```sh
+pip install PyQt5 mysql-connector-python pillow opencv-python pytesseract nltk
+```
+#### **🔧 List of Required Libraries**
+| Library | Purpose |
+|---------|---------|
+| **PyQt5** | GUI Development |
+| **mysql-connector-python** | Connects to MySQL Database |
+| **Pillow** | Image Handling (Profile Pictures) |
+| **opencv-python** | Image Processing (OCR Support) |
+| **pytesseract** | Optical Character Recognition (OCR) |
+| **nltk** | Text Summarization & Processing |
+
+---
+
+## **2️⃣ Database Setup**
+- The app will **automatically create the MySQL database & required tables**.  
+- However, you **must have MySQL installed and running**.
+
+### **🔹 MySQL as per Requirements **
+| **Parameter**  | **Value** |
+|---------------|----------|
+| **Host**      | `127.0.0.1` |
+| **User**      | `admin092004` |
+| **Password**  | `@Admin2004` |
+| **Database**  | `notice_board_db` |
+
+✅ **No manual SQL commands required!** The app will create the tables automatically.
+
+---
+
+## **3️⃣ External Tools**
+### **🔹 Tesseract OCR (Required for Notice Summarization)**
+📌 **Install Tesseract** (Needed for text extraction from images)  
+🔹 **Windows Users:**  
+1. Download from 👉 [Tesseract-OCR Download](https://github.com/UB-Mannheim/tesseract/wiki)  
+2. Install it and **add the path** to the system environment variables.  
+
+🔹 **Linux Users:**  
+```sh
+sudo apt install tesseract-ocr
+```
+🔹 **macOS Users:**  
+```sh
+brew install tesseract
+```
+
+---
+
+## **4️⃣ Running the App as Developer**
+Once everything is installed:  
+1️⃣ **Navigate to the project folder** in the terminal or command prompt:  
+```sh
+cd path/to/DigiNotice
+```
+2️⃣ **Run the main script**:  
+```sh
+python main.py
+```
+
+
+### **✅ Summary of Requirements**
+| **Requirement** | **Status** |
+|---------------|------------|
+| **Python 3.8+** | ✅ Installed |
+| **PyQt5 & Libraries** | ✅ Installed via `pip` |
+| **MySQL Database** | ✅ Auto-created |
+| **Tesseract-OCR** | ✅ Installed (for OCR features) |
+
+---
+
+🔥 **Now just launch `main.py`, and everything will work smoothly!** 🚀

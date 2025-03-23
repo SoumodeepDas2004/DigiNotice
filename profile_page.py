@@ -13,9 +13,9 @@ import shutil
 db = Database()
 
 class ProfilePage(QWidget):
-    def __init__(self, parent=None, uniqueid=None):  
-        super().__init__(parent)
-        self.parent_widget = parent  
+    def __init__(self, parent_window=None, uniqueid=None):  
+        super().__init__(parent_window)
+        self.main_widget = parent_window  
         self.uniqueid = uniqueid if uniqueid else self.get_logged_in_user_id()
 
         print(f"🟢 ProfilePage initialized with User ID: {self.uniqueid}")  
@@ -37,8 +37,8 @@ class ProfilePage(QWidget):
         self.setLayout(layout)
     #check Uid
     def get_logged_in_user_id(self):
-        if self.parent_widget and hasattr(self.parent_widget, "logged_in_user_id"):
-            return self.parent_widget.logged_in_user_id
+        if self.main_widget and hasattr(self.main_widget, "logged_in_user_id"):
+            return self.main_widget.logged_in_user_id
         return None
     # ================== 🔹 PROFILE PICTURE SECTION ==================
     def setup_profile_picture_section(self, layout):
@@ -144,10 +144,10 @@ class ProfilePage(QWidget):
     # ================== 🔹 GO BACK ==================
     def go_back(self):
         """Redirect the user to the correct page after editing their profile."""
-        if hasattr(self.parent_widget, "logged_in_user_id"):
-            if self.parent_widget.logged_in_user_id == "0001":  # ✅ If admin (ID = 0001)
-                self.parent_widget.stack.setCurrentWidget(self.parent_widget.admin_panel_page)
+        if hasattr(self.main_widget, "logged_in_user_id"):
+            if self.main_widget.logged_in_user_id == "0001":  # ✅ If admin (ID = 0001)
+                self.main_widget.stack.setCurrentWidget(self.main_widget.admin_panel_page)
             else:
-                self.parent_widget.stack.setCurrentWidget(self.parent_widget.notice_board_page)
+                self.main_widget.stack.setCurrentWidget(self.main_widget.notice_board_page)
         else:
             print("❌ Error: No user logged in!")

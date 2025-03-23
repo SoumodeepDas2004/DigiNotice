@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (
     QHBoxLayout, QScrollArea, QTextEdit, QGraphicsOpacityEffect
 )
 from PyQt5.QtGui import QFont, QPixmap
-from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation
+from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation, QPoint
 from notice_manager import get_latest_notices, get_summarized_notices
 from database import Database
 from profile_page import ProfilePage
@@ -134,8 +134,8 @@ class NoticeBoard(QWidget):
 
         # ✅ Timer for auto-rotation
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.fade_out_summary)
-        self.timer.start(3000)  # Change summary every 3 sec
+        self.timer.timeout.connect(self.slide_out_summary)
+        self.timer.start(5000)  # Change summary every 5 sec
 
         # ✅ Fetch summaries
         self.load_summaries()
@@ -176,12 +176,6 @@ class NoticeBoard(QWidget):
                 QMessageBox.warning(self, "Error", f"❌ Cannot open file: {e}")
         else:
             QMessageBox.warning(self, "Error", "❌ File not found!")
-    # ================== 🔹 LOGOUT FUNCTION ==================
-    def logout(self):
-        """Logs out the user and returns to the login page."""
-        print(f"🔴 Logging out User ID: {self.main_window.logged_in_user_id}")
-        self.main_window.logged_in_user_id = None
-        self.main_window.stack.setCurrentWidget(self.main_window.login_page)
 
     # ================== 🔹 LOAD & LOOP SUMMARIES ==================
     def load_summaries(self):
@@ -203,15 +197,26 @@ class NoticeBoard(QWidget):
         self.animation.start()
 
     # ================== 🔹 CHANGE SUMMARY TEXT & LOOP ==================
+    def slide_out_summary(self):
+        """Slide out text effect before changing the summary."""
+        self.animation = QPropertyAnimation(self.summary_display, b"pos")
+        self.animation.setDuration(500)  # Smooth slide-out
+        self.animation.setStartValue(self.summary_display.pos())  # Start position
+        self.animation.setEndValue(self.summary_display.pos() + QPoint(-self.summary_display.width(), 0))  # Move left
+
+        self.animation.finished.connect(self.change_summary_text)  # Call after animation
+        self.animation.start()
+
     def change_summary_text(self):
-        """Update the summary and fade it back in smoothly in a loop."""
+        """Update the summary text and slide it back in."""
         self.current_summary_index = (self.current_summary_index + 1) % len(self.summaries)  
         self.summary_display.setText(self.summaries[self.current_summary_index])
 
-        self.animation = QPropertyAnimation(self.fade_effect, b"opacity")
-        self.animation.setDuration(900)  
-        self.animation.setStartValue(0.0)
-        self.animation.setEndValue(1.0)
+        self.animation = QPropertyAnimation(self.summary_display, b"pos")
+        self.animation.setDuration(500)  # Smooth slide-in
+        self.animation.setStartValue(self.summary_display.pos() + QPoint(self.summary_display.width(), 0))  # Start from right
+        self.animation.setEndValue(self.summary_display.pos())  # Move back to original position
+
         self.animation.start()
     # ================== 🔹 THEME TOGGLE FUNCTION ==================
     def get_button_style(self):
@@ -231,7 +236,6 @@ class NoticeBoard(QWidget):
         else:
             self.theme_toggle_btn.setText("🌙 Dark Mode")
             return """
-                Q
                 
                 QPushButton {
                     background-color: ##020012;

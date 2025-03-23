@@ -54,9 +54,10 @@ def delete_user(unique_id):
 class LoginPage(QWidget):
     def __init__(self, main_window):
         super().__init__()
+
         self.main_window = main_window
         layout = QVBoxLayout()
-        
+
         self.label = QLabel("Enter Unique ID & Password:")
         layout.addWidget(self.label)
 

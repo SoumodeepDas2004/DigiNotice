@@ -22,7 +22,6 @@ class DigitalNoticeBoard(QMainWindow):
         # ✅ Create Login Page
         self.login_page = LoginPage(self)
         self.stack.addWidget(self.login_page)
-
         self.stack.setCurrentWidget(self.login_page)  # Start at login page
 
         
@@ -40,13 +39,9 @@ class DigitalNoticeBoard(QMainWindow):
         self.logged_in_user_name = name  
 
         print(f"✅ Login Success! User: {name} (ID: {unique_id})")
-
-        # ✅ Create user-specific pages dynamically
-        self.notice_board_page = NoticeBoard(self, unique_id)
         self.profile_page = ProfilePage(self, unique_id)
 
-        # ✅ Add pages to stack
-        self.stack.addWidget(self.notice_board_page)
+        # ✅ Add Profile page to stack
         self.stack.addWidget(self.profile_page)
 
         # ✅ Redirect to appropriate page
@@ -55,10 +50,14 @@ class DigitalNoticeBoard(QMainWindow):
             self.stack.addWidget(self.admin_panel_page)
             self.stack.setCurrentWidget(self.admin_panel_page)  # Redirect to admin panel
         else:
+            # ✅ Add & Create user-specific pages dynamically
+            self.notice_board_page = NoticeBoard(self, unique_id)
+            self.stack.addWidget(self.notice_board_page)
             self.stack.setCurrentWidget(self.notice_board_page) 
 
 
     def logout(self):
+        
         """Handle logout and return to login page."""
         self.logged_in_user_id = None
         self.logged_in_user_name = None

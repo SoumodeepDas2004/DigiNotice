@@ -144,7 +144,7 @@ class NoticeBoard(QWidget):
     def setup_footer_section(self):
         """Set up the footer with a logout button."""
         logout_btn = QPushButton("🔙 Logout")
-        logout_btn.clicked.connect(self.logout)
+        logout_btn.clicked.connect(self.main_window.logout)
         self.layout.addWidget(logout_btn)
 
     # ================== 🔹 REFRESH NOTICES ==================

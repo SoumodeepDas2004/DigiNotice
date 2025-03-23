@@ -114,7 +114,7 @@ class AdminPanel(QWidget):
         profile_logout_layout.addWidget(profile_btn)
 
         logout_btn = QPushButton("🔙 Logout")
-        logout_btn.clicked.connect(lambda: self.main_window.stack.setCurrentWidget(self.main_window.login_page))
+        logout_btn.clicked.connect(self.logout)
         profile_logout_layout.addWidget(logout_btn)
 
         self.layout.addLayout(profile_logout_layout)
@@ -176,3 +176,10 @@ class AdminPanel(QWidget):
         """Opens the admin profile editing page."""
         self.main_window.profile_page.load_user_data(self.uniqueid)  # ✅ Ensure admin data is loaded
         self.main_window.stack.setCurrentWidget(self.main_window.profile_page)
+        
+    def logout(self):
+        
+        """Logs out the user and returns to the login page."""
+        print(f"🔴 Logging out User ID: {self.main_window.logged_in_user_id}")
+        self.main_window.logged_in_user_id = None
+        self.main_window.stack.setCurrentWidget(self.main_window.login_page)

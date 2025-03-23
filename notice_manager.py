@@ -15,7 +15,8 @@ def get_latest_notices(limit=3):
     query = "SELECT title, content, file_path, summary, created_at FROM notices ORDER BY created_at DESC LIMIT %s"
     notices = db.fetch_data(query, (limit,))
 
-    print(f"✅ Notices Fetched: {notices}")  # <-- Debugging
+    
+    # print(f"✅ Notices Fetched: {notices}")  # <-- Debugging
     processed_notices = []
 
     for title, content, file_path, summary, notice_time in notices:

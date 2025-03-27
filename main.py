@@ -10,7 +10,8 @@ class DigitalNoticeBoard(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("DigiNotice")
-        self.setGeometry(100, 100, 900, 600)
+        self.setGeometry(300, 300, 800, 600)
+        self.showMaximized()
 
         self.stack = QStackedWidget()
         self.setCentralWidget(self.stack)

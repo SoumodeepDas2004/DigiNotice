@@ -44,6 +44,9 @@ class DigitalNoticeBoard(QMainWindow):
 
         # ✅ Add Profile page to stack
         self.stack.addWidget(self.profile_page)
+        
+        self.notice_board_page = NoticeBoard(self, unique_id)
+        self.stack.addWidget(self.notice_board_page)
 
         # ✅ Redirect to appropriate page
         if unique_id == "0001":  
@@ -52,8 +55,7 @@ class DigitalNoticeBoard(QMainWindow):
             self.stack.setCurrentWidget(self.admin_panel_page)  # Redirect to admin panel
         else:
             # ✅ Add & Create user-specific pages dynamically
-            self.notice_board_page = NoticeBoard(self, unique_id)
-            self.stack.addWidget(self.notice_board_page)
+
             self.stack.setCurrentWidget(self.notice_board_page) 
 
 

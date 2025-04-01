@@ -80,14 +80,14 @@ class AdminPanel(QWidget):
     def setup_notice_management(self):
         """Setup UI components for notice management."""
         self.notice_label = QLabel("📜 Notices:")
-        self.notice_label.setFixedSize(200,40)
+        self.notice_label.setFixedSize(200,20)
         self.notice_label.setStyleSheet("QLabel{color: white; font-size: 18px; font-weight: bold;}")
         self.layout.addWidget(self.notice_label)
 
         # 🔹 List of Notices
         self.notice_list = QListWidget()
         self.notice_list.setFixedSize(1900, 200)
-        self.notice_list.setStyleSheet("QListWidget{background-color: rgba(0,0,0,150); color: yellow; font-weight: bold; border: 2px solid #02f707; border-radius: 10px;}")
+        self.notice_list.setStyleSheet("QListWidget{background-color: rgba(0,0,0,150); color: #dbbc09; font-weight: bold; border: 2px solid #02f707; border-radius: 10px;}")
         self.layout.addWidget(self.notice_list)
         self.refresh_notices()
 
@@ -98,11 +98,11 @@ class AdminPanel(QWidget):
         self.Nnoticename.setPlaceholderText("Enter Notice Name")
         self.Nnoticename.setFixedSize(750,50)
         self.Nnoticename.setStyleSheet('''QLineEdit{background-color: rgba(0,0,0,150); color: rgba(70, 229, 208, 1); border: 2px solid yellow; font-size: 16px;}
-                                       ''')
+                            ''')
 
         upload_btn = QPushButton("📤 Upload Notice")
         upload_btn.setFixedSize(180,35)
-        upload_btn.setStyleSheet("QPushButton{font-weight: normal; border: 2px solid #02f707; border-radius: 20px;}")
+        upload_btn.setStyleSheet("QPushButton{font-weight: normal; border: 2px solid #02f707; border-radius:15px;}")
         upload_btn.clicked.connect(self.upload_notice)
 
         self.notice_upload_label = QLabel("Notice Name:")
@@ -127,14 +127,14 @@ class AdminPanel(QWidget):
     def setup_user_management(self):
         """Setup UI components for user management."""
         self.user_label = QLabel("👥 Users:")
-        self.user_label.setFixedSize(200,40)
+        self.user_label.setFixedSize(200,20)
         self.user_label.setStyleSheet("QLabel{color: white; font-size: 18px; font-weight: bold;}")
         self.layout.addWidget(self.user_label)
 
         # 🔹 List of Users
         self.user_list = QListWidget()
         self.user_list.setFixedSize(1900, 200)
-        self.user_list.setStyleSheet("QListWidget{background-color: rgba(0,0,0,150); color: yellow; font-weight: bold; border: 2px solid #02f707; border-radius: 10px;}")
+        self.user_list.setStyleSheet("QListWidget{background-color: rgba(0,0,0,150); color: yellow; font-weight:bold ; border:2px solid #02f707 ; border-radius: 10px;}")
         self.layout.addWidget(self.user_list)
         self.refresh_users()
 
@@ -152,7 +152,8 @@ class AdminPanel(QWidget):
         profile_logout_layout = QHBoxLayout()
 
         profile_btn = QPushButton("📝 Edit My Profile")
-        profile_btn.setStyleSheet('''QPushButton {
+        profile_btn.setStyleSheet('''
+    QPushButton {
         background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #f85bc7, stop: 1 #3533cd);
         color: white;
         border: #7ed957;
@@ -161,8 +162,14 @@ class AdminPanel(QWidget):
         font-size: 20px;
         border-radius: 20px;
     }
-        QPushButton:hover{background-color: #00598A; color: black; font-weight: bolder; border: 2px solid #02f707; font-size: 20px; border-radius: 20px;}
-    ''')
+    QPushButton:hover{ 
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #10fff1, stop: 1 #022eaf); 
+                                    color: white; 
+                                    font-weight: bolder; 
+                                    border: 5px solid #0cffd8; 
+                                    font-size: 20px; 
+                                    border-radius: 20px;}
+                                ''')
         profile_btn.setFixedSize(200,40)
         profile_btn.clicked.connect(self.open_profile_editor)
         profile_logout_layout.addWidget(profile_btn)
@@ -177,7 +184,11 @@ class AdminPanel(QWidget):
         font-size: 20px;
         border-radius: 20px;
     }
-        QPushButton:hover{background-color: #00598A; color: white; font-weight: bolder; border: 2px solid #02f707; font-size: 20px; border-radius: 20px;}
+        QPushButton:hover{        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #d6a4b0, stop: 1 #1ddb0d); 
+                                    font-weight: bolder; 
+                                    border: 5px solid #0cffd8; 
+                                    font-size: 20px; 
+                                    border-radius: 20px;}
     ''')
         logout_btn.setFixedSize(200,40)
         logout_btn.clicked.connect(self.logout)
@@ -214,7 +225,7 @@ class AdminPanel(QWidget):
 
         for notice in notices:
             notice_id, title, summary, timestamp, file_path = notice
-            item_text = f"📢 {title} ({timestamp}): {summary}"
+            item_text = f"📢 {title}\t({timestamp}):\n {summary}"
 
             # Create QListWidgetItem and store ID
             item = QListWidgetItem(item_text)

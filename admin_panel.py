@@ -87,7 +87,7 @@ class AdminPanel(QWidget):
         # 🔹 List of Notices
         self.notice_list = QListWidget()
         self.notice_list.setFixedSize(1900, 200)
-        self.notice_list.setStyleSheet("QListWidget{background-color: rgba(0,0,0,150); color: #dbbc09; font-weight: bold; border: 2px solid #02f707; border-radius: 10px;}")
+        self.notice_list.setStyleSheet("QListWidget{background-color: rgba(0,0,0,150); color: #dbbc09; font-weight: bold; border: 2px solid #02f707; border-radius: 10px; font-size: 20px;}")
         self.layout.addWidget(self.notice_list)
         self.refresh_notices()
 

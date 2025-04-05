@@ -23,14 +23,18 @@ class NoticeBoard(QWidget):
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)  
         # 🔹 UI Sections
-        # 🔹 Set Default Theme (Light Mode)
-        self.apply_light_theme()
         
+        self.background_label = QLabel(self)
+        self.bgimgpath = "assets/bgpics/bgnoticeboardLight.jpg"
+        self.set_background_image(self.bgimgpath)
         
         self.setup_header_section()  # ✅ Profile, Edit Button
+
         self.setup_notice_section()  # ✅ Scrollable Notice List
         self.setup_summary_section() # ✅ Auto-Rotating Summary (Now with Fade Effect)
-        self.setup_footer_section()  # ✅ Logout Button
+
+        # 🔹 Set Default Theme (Light Mode)
+        self.apply_light_theme()
 
     # ================== 🔹 HEADER SECTION ==================
     def setup_header_section(self):
@@ -46,30 +50,44 @@ class NoticeBoard(QWidget):
 
                 # 🔹 Edit Profile Button
         self.edit_profile_btn = QPushButton("Edit Profile")
-        self.edit_profile_btn.setFixedSize(120, 30)
+        self.edit_profile_btn.setFixedSize(180, 35)
         self.edit_profile_btn.clicked.connect(self.open_edit_profile)
 
         # 🔹 Theme Toggle Button
         self.theme_toggle_btn = QPushButton("🌙 Dark Mode")
-        self.theme_toggle_btn.setFixedSize(120, 30)
+        self.theme_toggle_btn.setFixedSize(180, 35)
         self.theme_toggle_btn.clicked.connect(self.toggle_theme)
 
         # ✅ Apply button styles AFTER the theme button exists
         self.edit_profile_btn.setStyleSheet(self.get_button_style())
         self.theme_toggle_btn.setStyleSheet(self.get_button_style())
 
-
+        """Set up a logout button."""
+        self.logout_btn = QPushButton("🔙 Logout")
+        self.logout_btn.setFixedSize(180, 35)
+        self.logout_btn.clicked.connect(self.main_window.logout)
 
         # 🔹 Notice Board Title
-        title_label = QLabel("Notice Board")
-        title_label.setFont(QFont('Arial', 15))
+        self.title_label = QLabel("Notice Board")
+        self.title_label.setFont(QFont('Arial', 15))
+        self.title_label.setFixedSize(180,45)
+        self.title_label.setAlignment(Qt.AlignCenter)
+        self.title_label.setStyleSheet(''' {
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #ad0808, stop: 1 #290374);
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        border: 2px solid #02f707; 
+        border-radius: 10px;
+    }''')
 
         # 🔹 Arrange Items in Layout
         header_layout.addWidget(self.profile_pic_label)
         header_layout.addWidget(self.edit_profile_btn)
         header_layout.addWidget(self.theme_toggle_btn)
         header_layout.addStretch()
-        header_layout.addWidget(title_label)
+        header_layout.addWidget(self.logout_btn)
+        header_layout.addWidget(self.title_label)
 
         self.layout.addLayout(header_layout)
     #edit profile func
@@ -108,6 +126,7 @@ class NoticeBoard(QWidget):
     # ================== 🔹 NOTICE DISPLAY SECTION ==================
     def setup_notice_section(self):
         """Set up the section where notices are displayed."""
+        self.notice_scroll = QHBoxLayout()
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.notice_container = QWidget()
@@ -115,17 +134,29 @@ class NoticeBoard(QWidget):
 
         self.notice_container.setLayout(self.notice_layout)
         self.scroll_area.setWidget(self.notice_container)
-        self.layout.addWidget(self.scroll_area)
-
+        self.scroll_area.setFixedSize(1500,500)
+        self.scroll_area.setAlignment(Qt.AlignCenter)
+        self.notice_scroll.addWidget(self.scroll_area)
+        self.layout.addLayout(self.notice_scroll)
         self.refresh_notices()
 
     # ================== 🔹 AUTO-ROTATING SUMMARY SECTION (FADE EFFECT) ==================
     def setup_summary_section(self):
         """Set up the auto-rotating summary display with a fade effect."""
+        self.summary_container = QHBoxLayout()
         self.summary_display = QTextEdit()
         self.summary_display.setReadOnly(True)
-        self.summary_display.setFixedHeight(80)
-        self.layout.addWidget(self.summary_display)
+        self.summary_display.setFixedSize(1800,150)
+        self.summary_display.setStyleSheet(''' QTextEdit{
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #73dfda, stop: 1 #ef569b);
+        color: black;
+        font-size: 20px;
+        font-weight: normal;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+    }''')
+        self.summary_container.addWidget(self.summary_display)
+        self.layout.addLayout(self.summary_container)
 
         # ✅ Add Fade Effect Properly
         self.fade_effect = QGraphicsOpacityEffect()
@@ -134,18 +165,11 @@ class NoticeBoard(QWidget):
 
         # ✅ Timer for auto-rotation
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.slide_out_summary)
+        self.timer.timeout.connect(self.fade_out_summary)
         self.timer.start(5000)  # Change summary every 5 sec
 
         # ✅ Fetch summaries
         self.load_summaries()
-
-    # ================== 🔹 FOOTER SECTION ==================
-    def setup_footer_section(self):
-        """Set up the footer with a logout button."""
-        logout_btn = QPushButton("🔙 Logout")
-        logout_btn.clicked.connect(self.main_window.logout)
-        self.layout.addWidget(logout_btn)
 
     # ================== 🔹 REFRESH NOTICES ==================
     def refresh_notices(self):
@@ -160,13 +184,18 @@ class NoticeBoard(QWidget):
         for title, content, file_path, notice_time in latest_notices:
             notice_label = QLabel(f"<b>{title}</b> at ({notice_time})\n{content}")
             notice_label.setWordWrap(True)
-            notice_label.setFixedWidth(500)
-            self.notice_layout.addWidget(notice_label)
+            self.notice_level_container = QHBoxLayout()
+            notice_label.setFixedWidth(1300)
+            self.notice_level_container.addWidget(notice_label)
+            self.notice_layout.addLayout(self.notice_level_container)
 
             if file_path and os.path.exists(file_path):  
                 download_btn = QPushButton("⬇️ Download")
+                self.download_btn_container = QHBoxLayout()
+                download_btn.setFixedSize(180, 35)
                 download_btn.clicked.connect(lambda checked, path=file_path: self.download_file(path))
-                self.notice_layout.addWidget(download_btn)
+                self.download_btn_container.addWidget(download_btn)
+                self.notice_layout.addLayout(self.download_btn_container)
     def download_file(self, file_path):
         """Opens the file location to let the user download it."""
         if os.path.exists(file_path):
@@ -197,7 +226,9 @@ class NoticeBoard(QWidget):
         self.animation.start()
 
     # ================== 🔹 CHANGE SUMMARY TEXT & LOOP ==================
-    def slide_out_summary(self):
+
+    # --slide_out_summary effect commented--
+    '''def slide_out_summary(self):
         """Slide out text effect before changing the summary."""
         self.animation = QPropertyAnimation(self.summary_display, b"pos")
         self.animation.setDuration(500)  # Smooth slide-out
@@ -205,9 +236,9 @@ class NoticeBoard(QWidget):
         self.animation.setEndValue(self.summary_display.pos() + QPoint(-self.summary_display.width(), 0))  # Move left
 
         self.animation.finished.connect(self.change_summary_text)  # Call after animation
-        self.animation.start()
+        self.animation.start()'''
 
-    def change_summary_text(self):
+    '''def change_summary_text(self):
         """Update the summary text and slide it back in."""
         self.current_summary_index = (self.current_summary_index + 1) % len(self.summaries)  
         self.summary_display.setText(self.summaries[self.current_summary_index])
@@ -217,6 +248,17 @@ class NoticeBoard(QWidget):
         self.animation.setStartValue(self.summary_display.pos() + QPoint(self.summary_display.width(), 0))  # Start from right
         self.animation.setEndValue(self.summary_display.pos())  # Move back to original position
 
+        self.animation.start()'''
+
+    def change_summary_text(self):
+        """Update the summary and fade it back in smoothly in a loop."""
+        self.current_summary_index = (self.current_summary_index + 1) % len(self.summaries)  
+        self.summary_display.setText(self.summaries[self.current_summary_index])
+
+        self.animation = QPropertyAnimation(self.fade_effect, b"opacity")
+        self.animation.setDuration(900)  
+        self.animation.setStartValue(0.0)
+        self.animation.setEndValue(1.0)
         self.animation.start()
     # ================== 🔹 THEME TOGGLE FUNCTION ==================
     def get_button_style(self):
@@ -251,9 +293,14 @@ class NoticeBoard(QWidget):
         if self.theme_toggle_btn.text() == "🌙 Dark Mode":
             self.apply_dark_theme()
             self.theme_toggle_btn.setText("☀️ Light Mode")
+            self.bgimgpath = "assets/bgpics/bgnoticeboardDark.jpg"
+            self.set_background_image(self.bgimgpath)
+
         else:
             self.apply_light_theme()
             self.theme_toggle_btn.setText("🌙 Dark Mode")
+            self.bgimgpath = "assets/bgpics/bgnoticeboardLight.jpg"
+            self.set_background_image(self.bgimgpath)
 
         # ✅ Update button styles dynamically
         self.edit_profile_btn.setStyleSheet(self.get_button_style())
@@ -274,11 +321,73 @@ class NoticeBoard(QWidget):
     # ================== 🔹 APPLY LIGHT THEME ==================
     def apply_light_theme(self):
         """Applies the Light Theme to the Notice Board."""
-        self.setStyleSheet("""
-            QWidget { background-color: white; color: black; }
-            QLabel { color: black; }
-            QPushButton { background-color: #f0f0f0; color: black; border-radius: 5px; }
-            QPushButton:hover { background-color: #ddd; }
-            QTextEdit { background-color: #f8f8f8; color: black; border: 1px solid #ccc; }
-        """)
-        
+        self.edit_profile_btn.setStyleSheet('''QPushButton {
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #cdffd8, stop: 1 #8aadf1);
+        color: black;
+        font-size: 20px;
+        font-weight: normal;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+    }
+        QPushButton:hover{background-color: #00598A; color: white; font-weight: bold; border: 2px solid #02f707; font-size: 20px; border-radius: 15px;}
+        ''')
+
+        self.theme_toggle_btn.setStyleSheet('''QPushButton {
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #cdffd8, stop: 1 #8aadf1);
+        color: black;
+        font-size: 20px;
+        font-weight: normal;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+    }
+        QPushButton:hover{background-color: #00598A; color: white; font-weight: bold; border: 2px solid #02f707; font-size: 20px; border-radius: 15px;}
+        ''')
+        self.logout_btn.setStyleSheet('''QPushButton {
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #cdffd8, stop: 1 #8aadf1);
+        color: black;
+        font-size: 20px;
+        font-weight: normal;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+    }
+        QPushButton:hover{background-color: #00598A; color: white; font-weight: bold; border: 2px solid #02f707; font-size: 20px; border-radius: 15px;}
+        ''')
+
+        self.notice_container.setStyleSheet('''QWidget {
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #fffcff, stop: 1 #f6e93f);
+        color: black;
+        font-size: 20px;
+        font-weight: normal;
+        border: 2px solid #02f707; 
+        border-radius: 15px;}
+        QScrollArea{background-color: rgba( 255, 255, 255, 0);}
+        QPushButton{background-color: DarkTurquoise; color: black; border: 2px solid red; border-radius: 15px;}
+        QPushButton:hover {background-color: red; color: white; border: 2px solid green; border-radius: 15px;}
+        ''')
+        self.title_label.setStyleSheet(''' QLabel{
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #ad0808, stop: 1 #290374);
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        border: 2px solid #02f707; 
+        border-radius: 10px;
+    }''')
+
+    def set_background_image(self, image_path):
+        if not os.path.exists(image_path):
+            print("Error: Image not found! Check the file path.")
+            return
+
+        bg_image = QPixmap(image_path)
+        if bg_image.isNull():
+            print("Error: Image not loaded. Check the file format or path.")
+        else:
+            self.background_label.setPixmap(bg_image.scaled(
+                self.width(), self.height(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation
+            ))
+            self.background_label.setGeometry(0,0, self.width(), self.height())
+    
+    # ✅ Dynamically update background image on window resize
+    def resizeEvent(self, event):
+        self.set_background_image(self.bgimgpath)  # Reapply scaling
+        super().resizeEvent(event)

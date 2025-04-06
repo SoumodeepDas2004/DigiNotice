@@ -35,7 +35,7 @@ def get_latest_notices(limit=3):
                     except Exception as e:
                         content = f"❌ Error reading file: {e}"
                 else:
-                    content = " ".join(summary.split()[:15]) + "..."  # ✅ Show first 15 words of summary
+                    content = " ".join(summary.split()[:25]) + "..."  # ✅ Show first 15 words of summary
             else:
                 content = "❌ File not found"
 

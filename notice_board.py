@@ -69,17 +69,10 @@ class NoticeBoard(QWidget):
 
         # 🔹 Notice Board Title
         self.title_label = QLabel("Notice Board")
-        self.title_label.setFont(QFont('Arial', 15))
-        self.title_label.setFixedSize(180,45)
+        self.title_label.setFont(QFont("Canva Sans",30,italic=True))
+        self.title_label.setFixedSize(400,80)
         self.title_label.setAlignment(Qt.AlignCenter)
-        self.title_label.setStyleSheet(''' {
-        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #ad0808, stop: 1 #290374);
-        color: white;
-        font-size: 20px;
-        font-weight: bold;
-        border: 2px solid #02f707; 
-        border-radius: 10px;
-    }''')
+        
 
         # 🔹 Arrange Items in Layout
         header_layout.addWidget(self.profile_pic_label)
@@ -126,11 +119,25 @@ class NoticeBoard(QWidget):
     # ================== 🔹 NOTICE DISPLAY SECTION ==================
     def setup_notice_section(self):
         """Set up the section where notices are displayed."""
+        
+        
         self.notice_scroll = QHBoxLayout()
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.notice_container = QWidget()
         self.notice_layout = QVBoxLayout()
+        
+        
+        self.nLabelHLAY=QHBoxLayout()
+        self.nLabel=QLabel("NOTICES")
+        self.nLabel.setFixedSize(180,60)
+        self.nLabel.setFont(QFont("Arial", 40))
+        self.nLabel.setAlignment(Qt.AlignCenter)
+        self.nLabelHLAY.setAlignment(Qt.AlignCenter)
+        
+        
+        self.nLabelHLAY.addWidget(self.nLabel)
+        self.notice_layout.addLayout(self.nLabelHLAY)
 
         self.notice_container.setLayout(self.notice_layout)
         self.scroll_area.setWidget(self.notice_container)
@@ -146,15 +153,9 @@ class NoticeBoard(QWidget):
         self.summary_container = QHBoxLayout()
         self.summary_display = QTextEdit()
         self.summary_display.setReadOnly(True)
-        self.summary_display.setFixedSize(1800,150)
-        self.summary_display.setStyleSheet(''' QTextEdit{
-        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #73dfda, stop: 1 #ef569b);
-        color: black;
-        font-size: 20px;
-        font-weight: normal;
-        border: 2px solid #02f707; 
-        border-radius: 15px;
-    }''')
+        self.summary_display.setFixedSize(1600,150)
+        self.summary_display.setAlignment(Qt.AlignCenter)
+        self.summary_container.setAlignment(Qt.AlignCenter)
         self.summary_container.addWidget(self.summary_display)
         self.layout.addLayout(self.summary_container)
 
@@ -183,6 +184,7 @@ class NoticeBoard(QWidget):
 
         for title, content, file_path, notice_time in latest_notices:
             notice_label = QLabel(f"<b>{title}</b> at ({notice_time})\n{content}")
+            notice_label.setAlignment(Qt.AlignCenter)
             notice_label.setWordWrap(True)
             self.notice_level_container = QHBoxLayout()
             notice_label.setFixedWidth(1300)
@@ -264,30 +266,34 @@ class NoticeBoard(QWidget):
     def get_button_style(self):
         """Returns button styles based on the current theme."""
         if self.theme_toggle_btn.text() == "🌙 Dark Mode":
+            
             self.theme_toggle_btn.setText("☀️ Light Mode")
             return """
-                QPushButton {
-                    background-color: #f0f0f0;
-                    color: black;
-                    border-radius: 5px;
-                }
-                QPushButton:hover {
-                    background-color: #ddd;
-                }
-            """
+        QPushButton{
+        background-color: black;
+        color: white;
+        font-size: 20px;
+        font-weight: normal;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+    }
+        QPushButton:hover{background-color:#085b4c; color: white; font-weight: bold; 
+        border: 2px solid #7FFF00 ; font-size: 20px; border-radius: 15px;} 
+        """
         else:
             self.theme_toggle_btn.setText("🌙 Dark Mode")
-            return """
-                
-                QPushButton {
-                    background-color: ##020012;
-                    color: white;
-                    border-radius: 5px;
-                }
-                QPushButton:hover {
-                    background-color: ##2c0145;
-                }
-            """
+            return    """ 
+        QPushButton {
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #cdffd8, stop: 1 #8aadf1);
+        color: black;
+        font-size: 20px;
+        font-weight: normal;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+    }
+        QPushButton:hover{background-color: #00598A; color: white; font-weight: bold; border: 2px solid #02f707; font-size: 20px; border-radius: 15px;}
+        """            
+        
     def toggle_theme(self):
         """Toggles between Light and Dark themes and updates button styles."""
         if self.theme_toggle_btn.text() == "🌙 Dark Mode":
@@ -303,20 +309,74 @@ class NoticeBoard(QWidget):
             self.set_background_image(self.bgimgpath)
 
         # ✅ Update button styles dynamically
-        self.edit_profile_btn.setStyleSheet(self.get_button_style())
-        self.theme_toggle_btn.setStyleSheet(self.get_button_style())
+        """self.edit_profile_btn.setStyleSheet(self.get_button_style())
+           self.theme_toggle_btn.setStyleSheet(self.get_button_style())"""
         # ================== 🔹 APPLY DARK THEME ==================
     def apply_dark_theme(self):
         """Applies the Dark Theme to the Notice Board."""
-        self.setStyleSheet("""
-            
-            QWidget { background-color: #2E2E2E; color: white; }
-            QLabel { color: white; }
-            QHBoxLayout{background-color:#010f03;  border-radius: 5px;}
-            QPushButton { background-color: #030336; color: white; border-radius: 5px; }
-            QPushButton:hover { background-color: #440069;  }
-            QTextEdit { background-color: #333; color: white; border: 1px solid #777; }
-        """)
+        self.edit_profile_btn.setStyleSheet('''
+        QPushButton{
+        background-color: black;
+        color: white;
+        font-size: 20px;
+        font-weight: normal;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+    }
+        QPushButton:hover{background-color:#085b4c; color: white; font-weight: bold; border: 2px solid #7FFF00 ; font-size: 20px; border-radius: 15px;}
+        ''')
+
+        self.theme_toggle_btn.setStyleSheet('''QPushButton {
+        background-color: black;
+        color: white;
+        font-size: 20px;
+        font-weight: normal;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+                                                            }
+        QPushButton:hover{background-color:#085b4c; color: white; font-weight: bold; border: 2px solid #7FFF00 ; font-size: 20px; border-radius: 15px;}
+        ''')
+        self.logout_btn.setStyleSheet('''QPushButton {
+        background-color: black;
+        color: white;
+        font-size: 20px;
+        font-weight: normal;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+    }
+        QPushButton:hover{background-color:#085b4c; color: white; font-weight: bold; border: 2px solid #7FFF00 ; font-size: 20px; border-radius: 15px;}
+        ''')
+        self.nLabel.setStyleSheet("color: white; font-weight:bold;  ")
+
+        self.notice_container.setStyleSheet('''QWidget {
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #000000 , stop: 1 #042201);
+        color: white;
+        font-size: 20px;
+        font-weight: normal;
+        border: 2px solid #02f707; 
+        border-radius: 15px;}
+        QScrollArea{background-color: rgba( 255, 255, 255, 0);}
+        QPushButton{background-color: DarkTurquoise; color: black; border: 2px solid red; border-radius: 15px;}
+        QPushButton:hover {background-color: red; color: white; border: 2px solid green; border-radius: 15px;}
+        ''')
+        self.title_label.setStyleSheet(''' QLabel{
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #ff0e0e, stop: 1 #5500ff);
+        color: white;
+        font-weight: bold;
+        border: 1px solid #919191; 
+        border-radius: 10px;
+    }''')
+        self.summary_display.setStyleSheet('''                           
+    QTextEdit{
+                background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #18053d, stop: 1 #085b4c);
+                color: white ;
+                font-size: 20px;
+                font-weight: normal;
+                border: 2px solid #02f707; 
+                border-radius: 15px;
+                width: 300px;
+                padding: 25px;
+            }''')
 
     # ================== 🔹 APPLY LIGHT THEME ==================
     def apply_light_theme(self):
@@ -352,26 +412,40 @@ class NoticeBoard(QWidget):
     }
         QPushButton:hover{background-color: #00598A; color: white; font-weight: bold; border: 2px solid #02f707; font-size: 20px; border-radius: 15px;}
         ''')
-
+        self.nLabel.setStyleSheet("color: black; font-weight:bold;")
         self.notice_container.setStyleSheet('''QWidget {
-        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #fffcff, stop: 1 #f6e93f);
-        color: black;
-        font-size: 20px;
-        font-weight: normal;
-        border: 2px solid #02f707; 
-        border-radius: 15px;}
-        QScrollArea{background-color: rgba( 255, 255, 255, 0);}
-        QPushButton{background-color: DarkTurquoise; color: black; border: 2px solid red; border-radius: 15px;}
-        QPushButton:hover {background-color: red; color: white; border: 2px solid green; border-radius: 15px;}
-        ''')
+            background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #fffcff, stop: 1 #f6e93f);
+            color: black;
+            font-size: 20px;
+            font-weight: normal;
+            border: 2px solid #02f707; 
+            border-radius: 15px;}
+            QPushButton{background-color: DarkTurquoise; color: black; border: 2px solid red; border-radius: 15px;}
+            QPushButton:hover {background-color: red; color: white; border: 2px solid green; border-radius: 15px;}
+            ''')
         self.title_label.setStyleSheet(''' QLabel{
-        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #ad0808, stop: 1 #290374);
-        color: white;
-        font-size: 20px;
-        font-weight: bold;
-        border: 2px solid #02f707; 
-        border-radius: 10px;
+            background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #ad0808, stop: 1 #290374);
+            color: white;
+            font-weight: bold;
+            border: 2px solid #02f707; 
+            border-radius: 10px;
     }''')
+        self.summary_display.setStyleSheet('''
+                QScrollBar::handle:vertical {
+                    background-color: black;
+                    min-height: 20px;
+                    border-radius: 5px;
+                } 
+                QTextEdit{
+                background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #73dfda, stop: 1 #ef569b);
+                color: black;
+                font-size: 20px;
+                font-weight: normal;
+                border: 2px solid #02f707; 
+                border-radius: 15px;
+                width: 300px;
+                padding: 25px;
+            }''')
 
     def set_background_image(self, image_path):
         if not os.path.exists(image_path):

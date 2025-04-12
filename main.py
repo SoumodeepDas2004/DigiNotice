@@ -72,7 +72,7 @@ class DigitalNoticeBoard(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = DigitalNoticeBoard()
-    icon = QIcon("assets\icon_file\icon.jpg")
+    icon = QIcon("assets/icon_file/icon.jpg")
     window.setWindowIcon(icon)
     window.show()
     sys.exit(app.exec_())

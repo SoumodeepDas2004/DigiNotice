@@ -1,4 +1,4 @@
-import os
+import os,sys
 import hashlib
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit, QMessageBox, 
@@ -9,6 +9,7 @@ from PyQt5.QtCore import Qt
 from database import Database
 from auth import is_valid_password,LoginPage
 import shutil
+#from PyQt5.QtWidgets import QApplication
 
 db = Database()
 
@@ -22,18 +23,46 @@ class ProfilePage(QWidget):
 
         if not self.uniqueid:
             print("⚠️ ERROR: No Unique ID found!")
-        # 🔹 Main Layout
+        # 🔹 Main Layout and UI
+        self.background_label = QLabel(self)
+        self.bgimgpath = "assets/bgpics/bgEditProfile.jpg"
+        self.set_background_image(self.bgimgpath)
+        
+        
         layout = QVBoxLayout()
+        detailsWid=QWidget()
+        detailsWid.setFixedSize(self.maximumWidth(), 600)
+        
+        detailwidlayout=QVBoxLayout()
+        #title setup 
+        self.title=QLabel("🛡️ Account Control")
+        
+        self.title.setFixedSize(500,60)
+        self.title.setStyleSheet("font-size: 40px; font-weight: bold; color: white; background-color:rgba(13, 127, 255, 0.2); padding: 3px;  border: 3px solid #5ce1e6;border-radius: 10px;}")
+        self.title.setAlignment(Qt.AlignCenter)
 
+        self.titleHbox=QHBoxLayout()
+        self.titleHbox.setAlignment(Qt.AlignLeft)
+        self.titleHbox.addWidget(self.title)
+        layout.addLayout(self.titleHbox)
+        #givng style to countainer of details
+        detailsWid.setStyleSheet("""{
+            background-color:black;
+            border: 3px solid #ffde59; 
+            border-radius: 10px;
+            }""") 
         # 🔹 Profile Picture Section
-        self.setup_profile_picture_section(layout)
+        self.setup_profile_picture_section(detailwidlayout)
 
         # 🔹 User Info Section (ID, Name, Password)
-        self.setup_user_info_section(layout)
+        self.setup_user_info_section(detailwidlayout)
 
         # 🔹 Buttons (Update Profile, Back)
-        self.setup_buttons(layout)
-
+        self.setup_buttons(detailwidlayout)
+        
+        detailsWid.setLayout(detailwidlayout)
+        
+        layout.addWidget(detailsWid)
         self.setLayout(layout)
     #check Uid
     def get_logged_in_user_id(self):
@@ -42,15 +71,33 @@ class ProfilePage(QWidget):
         return None
     # ================== 🔹 PROFILE PICTURE SECTION ==================
     def setup_profile_picture_section(self, layout):
+        
+
         """Set up the profile picture display and upload button."""
         self.profile_pic_label = QLabel(self)
-        self.profile_pic_label.setFixedSize(100, 100)
+        self.profile_pic_label.setFixedSize(150, 150)
         self.profile_pic_label.setScaledContents(True)
-        layout.addWidget(self.profile_pic_label)
-
-        self.upload_pic_btn = QPushButton("📸 Upload Profile Picture")
+        self.pfpHbox=QHBoxLayout()
+        self.pfpHbox.addWidget(self.profile_pic_label)
+        layout.addLayout(self.pfpHbox)
+            # upload button  pfp
+        self.pfpuploadhbox=QHBoxLayout()
+        self.upload_pic_btn = QPushButton("📸 Update Profile Picture")
+        self.upload_pic_btn.setStyleSheet(""" QPushButton {
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #8c52ff, stop: 1 #5ce1e6);
+        color: black;
+        font-size: 20px;
+        font-weight: bold;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+        padding:5px;
+                }
+        QPushButton:hover{background-color: #00598A; color: white; font-weight: bold; border: 2px solid #02f707; font-size: 25px; border-radius: 15px;}
+        """            )
         self.upload_pic_btn.clicked.connect(self.upload_profile_picture)
-        layout.addWidget(self.upload_pic_btn)
+        self.upload_pic_btn.setFixedSize(320,70)
+        self.pfpuploadhbox.addWidget(self.upload_pic_btn)
+        layout.addLayout(self.pfpuploadhbox)
 
     # ================== 🔹 USER INFO SECTION ==================
     def setup_user_info_section(self, layout):
@@ -64,26 +111,71 @@ class ProfilePage(QWidget):
         self.password_input = QLineEdit()
         self.password_input.setPlaceholderText("Enter New Password")
         self.password_input.setEchoMode(QLineEdit.Password)
+        
+        self.unique_id_input.setFixedSize(120,40)
+        self.unique_id_input.setAlignment(Qt.AlignCenter)
 
+        self.name_input.setFixedSize(240,40)
+        self.name_input.setAlignment(Qt.AlignCenter)
+
+        self.password_input.setFixedSize(300,40)
+        self.password_input.setAlignment(Qt.AlignCenter)
+
+        
+        
+        
         # Layout for user info
         user_info_layout = QHBoxLayout()
+        # user_info_layout.setAlignment(Qt.AlignCenter)
         user_info_layout.addWidget(self.unique_id_input)
         user_info_layout.addWidget(self.name_input)
         user_info_layout.addWidget(self.password_input)
-
+        self.setStyleSheet("""QLineEdit{
+            font-weight:bold;
+            font-size:24px;
+            border: solid 1px #02f707;
+            
+            border-radius:10px;
+            
+            }""")
+        
         layout.addLayout(user_info_layout)
 
     # ================== 🔹 BUTTON SECTION ==================
     def setup_buttons(self, layout):
         """Set up buttons for updating profile and going back."""
-        update_btn = QPushButton("Update Profile")
+        update_btn = QPushButton("Update Profile Details")
+        fotbutHbox=QHBoxLayout()
+        update_btn.setStyleSheet("""  QPushButton {
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #8c52ff, stop: 1 #5ce1e6);
+        color: black;
+        font-size: 22px;
+        font-weight: bold;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+    }
+        QPushButton:hover{background-color: #00598A; color: white; font-weight: bold; border: 2px solid #02f707; font-size: 25px; border-radius: 15px;}
+        """            )
         update_btn.clicked.connect(self.update_profile)
 
         back_btn = QPushButton("Back")
+        back_btn.setStyleSheet("""  QPushButton {
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #8c52ff, stop: 1 #5ce1e6);
+        color: black;
+        font-size: 22px;
+        font-weight: bold;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+    }
+        QPushButton:hover{background-color: #00598A; color: white; font-weight: bold; border: 2px solid #02f707; font-size: 25px; border-radius: 15px;}
+        """            )
         back_btn.clicked.connect(self.go_back)
-
-        layout.addWidget(update_btn)
-        layout.addWidget(back_btn)
+        update_btn.setFixedSize(320,50)
+        back_btn.setFixedSize(210,50)
+        fotbutHbox.addWidget(update_btn)
+        fotbutHbox.addSpacing(15)
+        fotbutHbox.addWidget(back_btn)
+        layout.addLayout(fotbutHbox)
 
     # ================== 🔹 PROFILE PICTURE UPLOAD ==================
     def upload_profile_picture(self):
@@ -151,3 +243,36 @@ class ProfilePage(QWidget):
                 self.main_widget.stack.setCurrentWidget(self.main_widget.notice_board_page)
         else:
             print("❌ Error: No user logged in!")
+            
+    # ✅ Function to set a full-window background image
+    def set_background_image(self, image_path):
+        if not os.path.exists(image_path):
+            print("Error: Image not found! Check the file path.")
+            return
+
+        bg_image = QPixmap(image_path)
+        if bg_image.isNull():
+            print("Error: Image not loaded. Check the file format or path.")
+        else:
+            self.background_label.setPixmap(bg_image.scaled(
+                self.width(), self.height(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation
+            ))
+            self.background_label.setGeometry(0,0, self.width(), self.height())
+    
+    # ✅ Dynamically update background image on window resize
+    def resizeEvent(self, event):
+        self.set_background_image(self.bgimgpath)  # Reapply scaling
+        super().resizeEvent(event)
+
+
+
+
+
+"""if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = ProfilePage()
+    #icon = QIcon("assets/icon_file/icon.jpg")
+#window.setWindowIcon(icon)
+    window.show()
+    sys.exit(app.exec_())
+"""

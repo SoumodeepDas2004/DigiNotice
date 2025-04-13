@@ -87,7 +87,7 @@ class AdminPanel(QWidget):
         # 🔹 List of Notices
         self.notice_list = QListWidget()
         self.notice_list.setFixedSize(1900, 200)
-        self.notice_list.setStyleSheet("QListWidget{background-color: rgba(0,0,0,150); color: #dbbc09; font-weight: bold; border: 2px solid #02f707; border-radius: 10px; font-size: 20px;}")
+        self.notice_list.setStyleSheet("QListWidget{background-color: rgba(0,0,0,150); color: #dbbc09; font-weight: bold; border: 2px solid #02f707; border-radius: 10px; font-size: 20px; padding :3px;}")
         self.layout.addWidget(self.notice_list)
         self.refresh_notices()
 
@@ -95,6 +95,7 @@ class AdminPanel(QWidget):
         notice_upload_layout = QHBoxLayout()
 
         self.Nnoticename = QLineEdit()
+        self.Nnoticename.setAlignment(Qt.AlignCenter)
         self.Nnoticename.setPlaceholderText("Enter Notice Name")
         self.Nnoticename.setFixedSize(750,50)
         self.Nnoticename.setStyleSheet('''QLineEdit{background-color: rgba(0,0,0,150); color: rgba(70, 229, 208, 1); border: 2px solid yellow; font-size: 16px;}
@@ -160,6 +161,7 @@ class AdminPanel(QWidget):
         border-radius: 5px;
         font-weight: bold;
         font-size: 20px;
+        border:2px solid #ff0000 ;
         border-radius: 20px;
     }
     QPushButton:hover{ 
@@ -182,12 +184,14 @@ class AdminPanel(QWidget):
         border-radius: 5px;
         font-weight: bold;
         font-size: 20px;
+        border:2px solid #ff0000 ;
         border-radius: 20px;
     }
         QPushButton:hover{        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #d6a4b0, stop: 1 #1ddb0d); 
                                     font-weight: bolder; 
                                     border: 5px solid #0cffd8; 
                                     font-size: 20px; 
+                                    border:2px solid #00ff40	 ;
                                     border-radius: 20px;}
     ''')
         logout_btn.setFixedSize(200,40)

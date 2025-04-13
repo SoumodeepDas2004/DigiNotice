@@ -112,13 +112,13 @@ class ProfilePage(QWidget):
         self.password_input.setPlaceholderText("Enter New Password")
         self.password_input.setEchoMode(QLineEdit.Password)
         
-        self.unique_id_input.setFixedSize(120,40)
+        self.unique_id_input.setFixedSize(210,40)
         self.unique_id_input.setAlignment(Qt.AlignCenter)
 
-        self.name_input.setFixedSize(240,40)
+        self.name_input.setFixedSize(210,40)
         self.name_input.setAlignment(Qt.AlignCenter)
 
-        self.password_input.setFixedSize(300,40)
+        self.password_input.setFixedSize(230,40)
         self.password_input.setAlignment(Qt.AlignCenter)
 
         
@@ -132,7 +132,7 @@ class ProfilePage(QWidget):
         user_info_layout.addWidget(self.password_input)
         self.setStyleSheet("""QLineEdit{
             font-weight:bold;
-            font-size:24px;
+            font-size:20px;
             border: solid 1px #02f707;
             
             border-radius:10px;

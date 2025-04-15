@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QPixmap, QLinearGradient, QPalette
 from PyQt5.QtCore import Qt
 from notice_manager import add_notice, get_all_notices, delete_notice
-from auth import get_all_users, delete_user
+from utils import get_all_users, delete_user
 from summarization import summarize_file
 import os
 

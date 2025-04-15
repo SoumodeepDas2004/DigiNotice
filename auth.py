@@ -1,11 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit, QFrame,QHBoxLayout
-from database import Database
-import hashlib
-import re
 import os
 from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtCore import Qt
-from utils import is_valid_password,register_user,login_user,get_all_users,delete_user
+from utils import register_user,login_user
 
 # 🔹 Login Page UI (QWidget for StackedWidget)
 class LoginPage(QWidget):

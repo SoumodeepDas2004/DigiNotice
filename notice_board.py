@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import (
     QHBoxLayout, QScrollArea, QTextEdit, QGraphicsOpacityEffect
 )
 from PyQt5.QtGui import QFont, QPixmap
-from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation, QPoint
-from notice_manager import get_latest_notices, get_summarized_notices
+from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation
+from utils import get_latest_notices, get_summarized_notices
 from database import Database
 from profile_page import ProfilePage
 

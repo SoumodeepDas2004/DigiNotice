@@ -1,4 +1,4 @@
-import os,sys
+import os
 import hashlib
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit, QMessageBox, 
@@ -7,8 +7,8 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 from database import Database
-from auth import is_valid_password,LoginPage
 import shutil
+
 #from PyQt5.QtWidgets import QApplication
 
 db = Database()
@@ -263,16 +263,3 @@ class ProfilePage(QWidget):
     def resizeEvent(self, event):
         self.set_background_image(self.bgimgpath)  # Reapply scaling
         super().resizeEvent(event)
-
-
-
-
-
-"""if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = ProfilePage()
-    #icon = QIcon("assets/icon_file/icon.jpg")
-#window.setWindowIcon(icon)
-    window.show()
-    sys.exit(app.exec_())
-"""

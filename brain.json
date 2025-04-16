@@ -39,5 +39,6 @@
     "how does the chatbot work": "It looks up your question in a stored JSON brain. If unknown, it logs it for future training.",
     "how do admins train the chatbot": "By running TrainBot, admins answer unknown questions which are then saved to the brain.json file.",
     "how to change my name": "Go to edit profile and change it",
-    "logout": "Click on logout button"
+    "logout": "Click on logout button",
+    "how to edit my profile": "to edit the profile click on edit profile option"
 }

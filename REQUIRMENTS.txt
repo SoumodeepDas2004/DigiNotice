@@ -27,7 +27,10 @@ pip install PyQt5 mysql-connector-python pillow opencv-python pytesseract nltk
 | **opencv-python** | Image Processing (OCR Support) |
 | **pytesseract** | Optical Character Recognition (OCR) |
 | **nltk** | Text Summarization & Processing |
-
+| **pip install vosk |  Installs the Vosk speech recognition toolkit for offline voice recognition |
+| **pip install vosk sounddevice | Installs both Vosk and SoundDevice libraries; SoundDevice is used for capturing live audio input |
+| **pip install spacy |  Installs spaCy, a powerful NLP (natural language processing) library |
+| **python -m spacy download en_core_web_md | Downloads the medium-sized English language model for spaCy, used for semantic text similarity |
 ---
 
 ## **2️⃣ Database Setup**

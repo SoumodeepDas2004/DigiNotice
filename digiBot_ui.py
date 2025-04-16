@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (
     QHBoxLayout, QMessageBox
 )
 from PyQt5.QtCore import QThread, pyqtSignal
+import time
 
 # Load spaCy model
 nlp = spacy.load("en_core_web_md")
@@ -24,7 +25,7 @@ class VoiceRecognitionThread(QThread):
 
     def run(self):
         try:
-            model_path = "vosk-model-small-en-us-0.15"  # Adjust to your extracted model path
+            model_path = "vosk-model-small-en-in-0.4"  # Adjust to your extracted model path
             if not os.path.exists(model_path):
                 self.error_occurred.emit("Model not found. Please check the path.")
                 return
@@ -39,16 +40,17 @@ class VoiceRecognitionThread(QThread):
                 q.put(bytes(indata))
 
             with sd.RawInputStream(samplerate=16000, blocksize=8000, dtype='int16',
-                                   channels=1, callback=callback):
+                       channels=1, callback=callback):
                 print("🎤 Listening...")
-                collected = b""
-                while True:
+                timeout = time.time() + 10  # Stop after 10 seconds
+                while time.time() < timeout:
                     data = q.get()
                     if recognizer.AcceptWaveform(data):
                         result = recognizer.Result()
                         text = json.loads(result).get("text", "")
                         self.recognized_text.emit(text)
-                        break
+                        return
+
         except Exception as e:
             self.error_occurred.emit(f"Speech recognition failed: {str(e)}")
 

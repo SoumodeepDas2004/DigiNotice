@@ -7,6 +7,7 @@ from PyQt5.QtCore import Qt
 from utils import add_notice, get_all_notices, delete_notice
 from utils import get_all_users, delete_user
 from utils import summarize_file
+from trainBot_ui import TrainBotUI
 import os
 
 class AdminPanel(QWidget):
@@ -154,9 +155,9 @@ class AdminPanel(QWidget):
 
         profile_btn = QPushButton("📝 Edit My Profile")
         profile_btn.setStyleSheet('''
-    QPushButton {
+        QPushButton {
         background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #f85bc7, stop: 1 #3533cd);
-        color: white;
+        color: black;
         border: #7ed957;
         border-radius: 5px;
         font-weight: bold;
@@ -189,6 +190,7 @@ class AdminPanel(QWidget):
     }
         QPushButton:hover{        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #d6a4b0, stop: 1 #1ddb0d); 
                                     font-weight: bolder; 
+                                    color: white;
                                     border: 5px solid #0cffd8; 
                                     font-size: 20px; 
                                     border:2px solid #00ff40	 ;
@@ -197,6 +199,29 @@ class AdminPanel(QWidget):
         logout_btn.setFixedSize(200,40)
         logout_btn.clicked.connect(self.logout)
         profile_logout_layout.addWidget(logout_btn)
+
+        train_bot_button = QPushButton("🧠 Train DigiBot")
+        train_bot_button.setStyleSheet('''QPushButton {
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #22C398, stop: 1 #FD7D2D);
+        color: black;
+        border: white;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 20px;
+        border:2px solid #ff0000 ;
+        border-radius: 20px;
+    }
+        QPushButton:hover{        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #54991C, stop: 1 #801B59); 
+                                    font-weight: bolder; 
+                                    color: white;
+                                    border: 5px solid #0cffd8; 
+                                    font-size: 20px; 
+                                    border:2px solid #00ff40	 ;
+                                    border-radius: 20px;}
+    ''')
+        train_bot_button.setFixedSize(200, 40)
+        train_bot_button.clicked.connect(self.open_train_bot)
+        profile_logout_layout.addWidget(train_bot_button)
 
         self.layout.addLayout(profile_logout_layout)
 
@@ -285,3 +310,8 @@ class AdminPanel(QWidget):
     def resizeEvent(self, event):
         self.set_background_image(self.bgimgpath)  # Reapply scaling
         super().resizeEvent(event)
+
+    # Method for trainBot
+    def open_train_bot(self):
+        self.train_bot_ui = TrainBotUI()
+        self.train_bot_ui.show()

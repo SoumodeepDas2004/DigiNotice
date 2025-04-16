@@ -8,6 +8,7 @@ from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation
 from utils import get_latest_notices, get_summarized_notices
 from database import Database
 from profile_page import ProfilePage
+from digiBot_ui import DigiBot
 
 db = Database()
 
@@ -43,7 +44,7 @@ class NoticeBoard(QWidget):
 
         # 🔹 Profile Picture (Rounded)
         self.profile_pic_label = QLabel(self)
-        self.profile_pic_label.setFixedSize(50, 50)
+        self.profile_pic_label.setFixedSize(60, 60)
         self.profile_pic_label.setScaledContents(True)
         self.profile_pic_label.setStyleSheet("border-radius: 25px; border: 4px solid #4CAF50;")
         self.load_profile_picture()
@@ -66,6 +67,22 @@ class NoticeBoard(QWidget):
         self.logout_btn = QPushButton("🔙 Logout")
         self.logout_btn.setFixedSize(180, 35)
         self.logout_btn.clicked.connect(self.main_window.logout)
+
+        # ✅ Set up a Help / Support button
+        self.help_btn = QPushButton("❓Help")
+        self.help_btn.setStyleSheet('''QPushButton {
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #cdffd8, stop: 1 #8aadf1);
+        color: black;
+        font-size: 20px;
+        font-weight: normal;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+    }
+        QPushButton:hover{background-color: #00598A; color: white; font-weight: bold; border: 2px solid #02f707; font-size: 20px; border-radius: 15px;}
+        ''')
+        self.help_btn.setFixedSize(180, 35)
+        self.help_btn.clicked.connect(self.show_digibot)
+        header_layout.addWidget(self.help_btn)
 
         # 🔹 Notice Board Title
         self.title_label = QLabel("Notice Board")
@@ -465,3 +482,7 @@ class NoticeBoard(QWidget):
     def resizeEvent(self, event):
         self.set_background_image(self.bgimgpath)  # Reapply scaling
         super().resizeEvent(event)
+
+    # ✅ To use the Bot instance created in main.py
+    def show_digibot(self):
+        self.main_window.chatbot_widget.show()

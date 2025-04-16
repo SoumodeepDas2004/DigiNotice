@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget
 from profile_page import ProfilePage  
 from notice_board import NoticeBoard
 from admin_panel import AdminPanel
+from digiBot_ui import DigiBot
 from auth import LoginPage
 from PyQt5.QtGui import QIcon
 import sys
@@ -47,6 +48,9 @@ class DigitalNoticeBoard(QMainWindow):
         
         self.notice_board_page = NoticeBoard(self, unique_id)
         self.stack.addWidget(self.notice_board_page)
+
+        # ✅ To create the Bot instance
+        self.chatbot_widget = DigiBot()
 
         # ✅ Redirect to appropriate page
         if unique_id == "0001":  

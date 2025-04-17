@@ -40,5 +40,6 @@
     "how do admins train the chatbot": "By running TrainBot, admins answer unknown questions which are then saved to the brain.json file.",
     "how to change my name": "Go to edit profile and change it",
     "logout": "Click on logout button",
-    "how to edit my profile": "to edit the profile click on edit profile option"
+    "how to edit my profile": "Go to edit my profile......change required datas ....click on update profile",
+    "oh did profile pic dad": "go to edit profile ,upload  new picture  then update profile picture"
 }

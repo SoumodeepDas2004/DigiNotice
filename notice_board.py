@@ -22,6 +22,8 @@ class NoticeBoard(QWidget):
         
         # 🔹 Main Layout
         self.layout = QVBoxLayout()
+        self.layout.setSpacing(30)  # 💡 Ensures equal vertical spacing between elements  
+        self.layout.setContentsMargins(20, 20, 20, 20)  # 💡 Optional: adds clean margins around edges
         self.setLayout(self.layout)  
         # 🔹 UI Sections
         
@@ -44,19 +46,19 @@ class NoticeBoard(QWidget):
 
         # 🔹 Profile Picture (Rounded)
         self.profile_pic_label = QLabel(self)
-        self.profile_pic_label.setFixedSize(60, 60)
+        self.profile_pic_label.setFixedSize(70, 70)
         self.profile_pic_label.setScaledContents(True)
         self.profile_pic_label.setStyleSheet("border-radius: 25px; border: 4px solid #4CAF50;")
         self.load_profile_picture()
 
                 # 🔹 Edit Profile Button
         self.edit_profile_btn = QPushButton("Edit Profile")
-        self.edit_profile_btn.setFixedSize(180, 35)
+        self.edit_profile_btn.setFixedSize(200, 40)
         self.edit_profile_btn.clicked.connect(self.open_edit_profile)
 
         # 🔹 Theme Toggle Button
         self.theme_toggle_btn = QPushButton("🌙 Dark Mode")
-        self.theme_toggle_btn.setFixedSize(180, 35)
+        self.theme_toggle_btn.setFixedSize(200, 40)
         self.theme_toggle_btn.clicked.connect(self.toggle_theme)
 
         # ✅ Apply button styles AFTER the theme button exists
@@ -65,7 +67,7 @@ class NoticeBoard(QWidget):
 
         """Set up a logout button."""
         self.logout_btn = QPushButton("🔙 Logout")
-        self.logout_btn.setFixedSize(180, 35)
+        self.logout_btn.setFixedSize(200, 40)
         self.logout_btn.clicked.connect(self.main_window.logout)
 
         # ✅ Set up a Help / Support button
@@ -80,7 +82,7 @@ class NoticeBoard(QWidget):
     }
         QPushButton:hover{background-color: #00598A; color: white; font-weight: bold; border: 2px solid #02f707; font-size: 20px; border-radius: 15px;}
         ''')
-        self.help_btn.setFixedSize(180, 35)
+        self.help_btn.setFixedSize(200, 40)
         self.help_btn.clicked.connect(self.show_digibot)
         
 
@@ -148,19 +150,29 @@ class NoticeBoard(QWidget):
         
         self.nLabelHLAY=QHBoxLayout()
         self.nLabel=QLabel("NOTICES")
-        self.nLabel.setFixedSize(180,60)
-        self.nLabel.setFont(QFont("Arial", 40))
+
+        self.notice_layout.setSpacing(10)  # 🔧 Reduce spacing between heading and scroll area
+        self.notice_layout.setContentsMargins(0, 0, 0, 0)  # 🔧 Remove label padding if any
+
+        self.nLabel.setFixedSize(180,80)
+        self.nLabel.setFont(QFont("Arial", 200))
         self.nLabel.setAlignment(Qt.AlignCenter)
         self.nLabelHLAY.setAlignment(Qt.AlignCenter)
         
         
         self.nLabelHLAY.addWidget(self.nLabel)
+
+        self.nLabelHLAY.addSpacing(0)  # No spacing between label and next section
+        self.nLabelHLAY.setContentsMargins(0, 0, 0, 0)  # Remove margins
+
         self.notice_layout.addLayout(self.nLabelHLAY)
+        self.notice_layout.setSpacing(5)  # spacing between notices
+        self.notice_layout.addSpacing(0)   # no gap between heading and first notice
 
         self.notice_container.setLayout(self.notice_layout)
         self.scroll_area.setWidget(self.notice_container)
-        self.scroll_area.setFixedSize(1600,700)
-        self.scroll_area.setAlignment(Qt.AlignHCenter )
+        self.scroll_area.setFixedSize(1500,600)
+        self.scroll_area.setAlignment(Qt.AlignCenter )
         self.notice_scroll.addWidget(self.scroll_area)
         self.layout.addLayout(self.notice_scroll)
         self.refresh_notices()
@@ -171,11 +183,12 @@ class NoticeBoard(QWidget):
         self.summary_container = QHBoxLayout()
         self.summary_display = QTextEdit()
         self.summary_display.setReadOnly(True)
-        self.summary_display.setFixedSize(1700,200)
-        self.summary_display.setStyleSheet("QTextEdit{ padding:3px;  }")
+        self.summary_display.setFixedSize(1700,160)
+        self.summary_display.setStyleSheet("QTextEdit{ padding:10px;  }")
         self.summary_display.setAlignment(Qt.AlignCenter)
         self.summary_container.setAlignment(Qt.AlignCenter)
         self.summary_container.addWidget(self.summary_display)
+        self.summary_container.addSpacing(20)
         self.layout.addLayout(self.summary_container)
 
         # ✅ Add Fade Effect Properly
@@ -206,7 +219,7 @@ class NoticeBoard(QWidget):
             notice_label.setAlignment(Qt.AlignLeft)
             notice_label.setWordWrap(True)
             self.notice_level_container = QHBoxLayout()
-            notice_label.setFixedWidth(1300)
+            notice_label.setFixedSize(1200, 180)
             self.notice_level_container.addWidget(notice_label)
             self.notice_layout.addLayout(self.notice_level_container)
             
@@ -216,11 +229,13 @@ class NoticeBoard(QWidget):
                 download_btn = QPushButton("⬇️ Download")
                 self.download_btn_container = QHBoxLayout()
                 download_btn.setFixedSize(180, 35)
+                download_btn.setStyleSheet("QTextEdit{ padding:5px;  }")
                 download_btn.clicked.connect(lambda checked, path=file_path: self.download_file(path))
                 self.download_btn_container.addWidget(download_btn)
+                self.download_btn_container.setSpacing(20)
                 self.notice_layout.addLayout(self.download_btn_container)
-            self.notice_layout.setContentsMargins(1,1,1,2)
-            self.notice_layout.setSpacing(1)
+                self.notice_layout.setContentsMargins(1,1,1,5)
+                self.notice_layout.setSpacing(5)
             
     def download_file(self, file_path):
         """Opens the file location to let the user download it."""
@@ -375,7 +390,7 @@ class NoticeBoard(QWidget):
         self.notice_container.setStyleSheet('''QWidget {
         background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #000000 , stop: 1 #042201);
         color: white;
-        font-size: 20px;
+        font-size: 22px;
         font-weight: normal;
         border: 2px solid #02f707; 
         border-radius: 15px;}
@@ -440,7 +455,7 @@ class NoticeBoard(QWidget):
         self.notice_container.setStyleSheet('''QWidget {
             background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #fffcff, stop: 1 #f6e93f);
             color: black;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: normal;
             border: 2px solid #02f707; 
             border-radius: 15px;}

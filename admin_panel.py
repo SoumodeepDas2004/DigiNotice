@@ -101,17 +101,17 @@ class AdminPanel(QWidget):
         self.Nnoticename = QLineEdit()
         self.Nnoticename.setAlignment(Qt.AlignCenter)
         self.Nnoticename.setPlaceholderText("Enter Notice Name")
-        self.Nnoticename.setFixedSize(750,50)
+        self.Nnoticename.setFixedSize(650,50)
         self.Nnoticename.setStyleSheet('''QLineEdit{background-color: rgba(0,0,0,150); color: rgba(70, 229, 208, 1); border: 2px solid yellow; font-size: 16px;}
                             ''')
 
         upload_btn = QPushButton("📤 Upload Notice")
-        upload_btn.setFixedSize(180,35)
-        upload_btn.setStyleSheet("QPushButton{font-weight: normal; border: 2px solid #02f707; border-radius:15px;}")
+        upload_btn.setFixedSize(200,36)
+        upload_btn.setStyleSheet("QPushButton{font-weight: bold; border: 2px solid #02f707; border-radius:15px;}")
         upload_btn.clicked.connect(self.upload_notice)
 
         self.notice_upload_label = QLabel("Notice Name:")
-        self.notice_upload_label.setFixedSize(170,35)
+        self.notice_upload_label.setFixedSize(190,35)
         self.notice_upload_label.setAlignment(Qt.AlignCenter)
         self.notice_upload_label.setStyleSheet("QLabel{color: black; font-size: 18px; font-weight: bold; background-color: rgba(26, 228, 19, 0.61); border-radius: 10px; padding: 5px;}")
         notice_upload_layout.addWidget(self.notice_upload_label)
@@ -123,7 +123,7 @@ class AdminPanel(QWidget):
         # 🔹 Delete Notice Button
         self.delete_notice_layout = QHBoxLayout()
         delete_notice_btn = QPushButton("❌ Delete Selected Notice")
-        delete_notice_btn.setFixedSize(800,50)
+        delete_notice_btn.setFixedSize(800,45)
         delete_notice_btn.clicked.connect(self.delete_selected_notice)
         self.delete_notice_layout.addWidget(delete_notice_btn)
         self.layout.addLayout(self.delete_notice_layout)
@@ -152,7 +152,7 @@ class AdminPanel(QWidget):
         # 🔹 Delete User Button
         self.delete_user_layout = QHBoxLayout()
         delete_user_btn = QPushButton("❌ Delete Selected User")
-        delete_user_btn.setFixedSize(800,50)
+        delete_user_btn.setFixedSize(800,45)
         delete_user_btn.clicked.connect(self.delete_selected_user)
         self.delete_user_layout.addWidget(delete_user_btn)
         self.layout.addLayout(self.delete_user_layout)

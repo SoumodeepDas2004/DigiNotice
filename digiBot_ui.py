@@ -112,6 +112,7 @@ class DigiBot(QWidget):
 
     def get_response(self, user_query):
         """Returns the most relevant answer using semantic similarity."""
+        print(f"You said: {user_query}")
         user_doc = nlp(user_query)
         best_match = None
         highest_similarity = 0
@@ -134,19 +135,20 @@ class DigiBot(QWidget):
         user_input = self.input_box.text().strip()
         if not user_input:
             return
-        self.chat_display.append(f"🧑 You: {user_input}")
+        self.chat_display.append(f"🧑 : {user_input}")
         response = self.get_response(user_input)
-        self.chat_display.append(f"🤖 Bot: {response}\n")
+        self.chat_display.append(f"🤖 : {response}\n")
         self.input_box.clear()
 
     def listen_voice(self):
         """Starts the voice recognition process in a separate thread."""
-        self.chat_display.append("🎤 Listening...")
+        self.chat_display.append("🎤 Listening...Ask me your Query")
         self.voice_thread.start()
 
     def handle_recognized_text(self, text):
         """Handles the recognized text from the voice thread."""
         self.chat_display.append(f"🧑 You (voice): {text}")
+        
         response = self.get_response(text)
         self.chat_display.append(f"🤖 Bot: {response}\n")
 

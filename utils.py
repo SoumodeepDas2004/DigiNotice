@@ -72,7 +72,7 @@ def add_notice(title, content, summary, file_path):
     db.execute_query(query, (title, content, summary, file_path))
 
 # 🔹 Get Latest Notices (for Notice Board)
-def get_latest_notices(limit=3):
+def get_latest_notices(limit=4):
     print("🔍 Fetching notices from database...")
     query = "SELECT title, content, file_path, summary, created_at FROM notices ORDER BY created_at DESC LIMIT %s"
     notices = db.fetch_data(query, (limit,))
@@ -97,7 +97,7 @@ def get_latest_notices(limit=3):
                     except Exception as e:
                         content = f"❌ Error reading file: {e}"
                 else:
-                    content = " ".join(summary.split()[:25]) + "..."  # ✅ Show first 15 words of summary
+                    content = " ".join(summary.split()[:35]) + "..."  # ✅ Show first 35 words of summary
             else:
                 content = "❌ File not found"
 
@@ -166,7 +166,7 @@ nltk.download('stopwords')
 punkt_tokenizer = PunktSentenceTokenizer()
 
 # ✅ Ensure Tesseract OCR is set up properly
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+pytesseract.pytesseract.tesseract_cmd = r"C:/Program Files/Tesseract-OCR/tesseract.exe"
 
 # 🔹 Extract Text from PDF
 def extract_text_from_pdf(pdf_path):

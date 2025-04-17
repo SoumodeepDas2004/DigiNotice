@@ -82,7 +82,7 @@ class NoticeBoard(QWidget):
         ''')
         self.help_btn.setFixedSize(180, 35)
         self.help_btn.clicked.connect(self.show_digibot)
-        header_layout.addWidget(self.help_btn)
+        
 
         # 🔹 Notice Board Title
         self.title_label = QLabel("Notice Board")
@@ -96,6 +96,7 @@ class NoticeBoard(QWidget):
         header_layout.addWidget(self.edit_profile_btn)
         header_layout.addWidget(self.theme_toggle_btn)
         header_layout.addStretch()
+        header_layout.addWidget(self.help_btn)
         header_layout.addWidget(self.logout_btn)
         header_layout.addWidget(self.title_label)
 
@@ -158,8 +159,8 @@ class NoticeBoard(QWidget):
 
         self.notice_container.setLayout(self.notice_layout)
         self.scroll_area.setWidget(self.notice_container)
-        self.scroll_area.setFixedSize(1500,500)
-        self.scroll_area.setAlignment(Qt.AlignCenter)
+        self.scroll_area.setFixedSize(1600,700)
+        self.scroll_area.setAlignment(Qt.AlignHCenter )
         self.notice_scroll.addWidget(self.scroll_area)
         self.layout.addLayout(self.notice_scroll)
         self.refresh_notices()
@@ -170,7 +171,8 @@ class NoticeBoard(QWidget):
         self.summary_container = QHBoxLayout()
         self.summary_display = QTextEdit()
         self.summary_display.setReadOnly(True)
-        self.summary_display.setFixedSize(1600,150)
+        self.summary_display.setFixedSize(1700,200)
+        self.summary_display.setStyleSheet("QTextEdit{ padding:3px;  }")
         self.summary_display.setAlignment(Qt.AlignCenter)
         self.summary_container.setAlignment(Qt.AlignCenter)
         self.summary_container.addWidget(self.summary_display)
@@ -198,15 +200,17 @@ class NoticeBoard(QWidget):
             item = self.notice_layout.itemAt(i)
             if item.widget():
                 item.widget().deleteLater()
-
+        n=1
         for title, content, file_path, notice_time in latest_notices:
-            notice_label = QLabel(f"<b>{title}</b> at ({notice_time})\n{content}")
-            notice_label.setAlignment(Qt.AlignCenter)
+            notice_label = QLabel(f"{n}<b>📃: {title}</b> at ({notice_time})\n{content}")
+            notice_label.setAlignment(Qt.AlignLeft)
             notice_label.setWordWrap(True)
             self.notice_level_container = QHBoxLayout()
             notice_label.setFixedWidth(1300)
             self.notice_level_container.addWidget(notice_label)
             self.notice_layout.addLayout(self.notice_level_container)
+            
+            n+=1
 
             if file_path and os.path.exists(file_path):  
                 download_btn = QPushButton("⬇️ Download")
@@ -215,6 +219,9 @@ class NoticeBoard(QWidget):
                 download_btn.clicked.connect(lambda checked, path=file_path: self.download_file(path))
                 self.download_btn_container.addWidget(download_btn)
                 self.notice_layout.addLayout(self.download_btn_container)
+            self.notice_layout.setContentsMargins(1,1,1,2)
+            self.notice_layout.setSpacing(1)
+            
     def download_file(self, file_path):
         """Opens the file location to let the user download it."""
         if os.path.exists(file_path):

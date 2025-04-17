@@ -55,7 +55,7 @@ class AdminPanel(QWidget):
 
         self.title = QLabel("🔧 Admin Panel")
         self.title.setAlignment(Qt.AlignCenter)
-        self.title.setStyleSheet("font-size: 24px; font-weight: bold; color: white;")
+        self.title.setStyleSheet("font-size: 24px; font-weight: bold; color: white; background-color:#006328")
 
         # 🔹 Admin Profile Picture
         self.profile_pic_label = QLabel()
@@ -87,8 +87,11 @@ class AdminPanel(QWidget):
 
         # 🔹 List of Notices
         self.notice_list = QListWidget()
-        self.notice_list.setFixedSize(1900, 200)
-        self.notice_list.setStyleSheet("QListWidget{background-color: rgba(0,0,0,150); color: #dbbc09; font-weight: bold; border: 2px solid #02f707; border-radius: 10px; font-size: 20px; padding :3px;}")
+        self.notice_list.setFixedSize(1900, 400)
+        self.notice_list.setStyleSheet( """
+                                QListWidget{background-color: rgba(0,0,0,150); color: #dbbc09; font-weight: bold; border: 2px solid #02f707; border-radius: 10px; font-size: 20px; padding :5px;} 
+                                QListWidget::item{padding: 2px; border: 1px solid red; margin: 3px;}
+                                        """)
         self.layout.addWidget(self.notice_list)
         self.refresh_notices()
 
@@ -134,9 +137,15 @@ class AdminPanel(QWidget):
         self.layout.addWidget(self.user_label)
 
         # 🔹 List of Users
+        
         self.user_list = QListWidget()
-        self.user_list.setFixedSize(1900, 200)
-        self.user_list.setStyleSheet("QListWidget{background-color: rgba(0,0,0,150); color: yellow; font-weight:bold ; border:2px solid #02f707 ; border-radius: 10px;}")
+        self.user_list.setFixedSize(1900,200)
+        
+        self.user_list.setStyleSheet(   """
+                                        QListWidget{background-color: rgba(0,0,0,150); color: yellow; font-weight:bold ; border:2px solid #02f707 ; border-radius: 10px;display: flex;align-items: center;}
+                                        QListWidget::item{padding: 2px; border: 1px solid red; margin: 3px; display: flex;align-items: center; }
+                                    """)
+        
         self.layout.addWidget(self.user_list)
         self.refresh_users()
 
@@ -251,16 +260,18 @@ class AdminPanel(QWidget):
         """Fetches and displays the latest notices."""
         self.notice_list.clear()
         notices = get_all_notices()
-
+        n=1
         for notice in notices:
             notice_id, title, summary, timestamp, file_path = notice
-            item_text = f"📢 {title}\t({timestamp}):\n {summary}"
-
+            item_text = f"{n}📢: {title}\t({timestamp}):\n {summary}"
+            n+=1
             # Create QListWidgetItem and store ID
             item = QListWidgetItem(item_text)
+            
             item.setData(Qt.UserRole, notice_id)  # 🔹 Store SQL notice ID in the item
             self.notice_list.addItem(item)
             self.notice_list.setWordWrap(True)
+            
 
     # ================== 🔹 USER MANAGEMENT FUNCTIONS ==================
     def refresh_users(self):
@@ -269,6 +280,7 @@ class AdminPanel(QWidget):
         users = get_all_users()
         for user in users:
             self.user_list.addItem(f"{user[0]} - {user[1]}")  # Unique ID - Name
+        self.user_list.setItemAlignment(Qt.AlignHCenter)
 
     def delete_selected_user(self):
         """Deletes a selected user."""
@@ -315,3 +327,5 @@ class AdminPanel(QWidget):
     def open_train_bot(self):
         self.train_bot_ui = TrainBotUI()
         self.train_bot_ui.show()
+
+        

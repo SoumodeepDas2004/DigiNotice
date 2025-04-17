@@ -86,7 +86,6 @@ class LoginPage(QWidget):
     def login(self):
         unique_id = self.unique_id_input.text()
         password = self.password_input.text()
-        
         print(f"🔍 Attempting login with ID: {unique_id}")  # Debugging statement
 
         if unique_id.isdigit() and len(unique_id) == 4:

@@ -13,6 +13,8 @@ class TrainBotUI(QWidget):
         self.setFixedSize(900, 600)
         self.setWindowIcon(QIcon("assets/bgpics/digibotbg.jpg"))
         self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
         #bg pic set
         self.background_label = QLabel(self)
         self.bgimgpath = "assets/bgpics/digibotbg.jpg"
@@ -30,7 +32,6 @@ class TrainBotUI(QWidget):
                                         QListWidget::item{padding:2px; border: 1px solid red; margin: 3px;   text-align: center;}
                                         """)
         
-        self.question_list.setItemAlignment(Qt.AlignCenter)
         
         self.answer_input = QLineEdit()
         self.answer_input.setStyleSheet("""QLineEdit{background-color: #ffb2fa; font-weight: bold; border: 2px solid #02f707; font-size: 12px; border-radius: 5px; padding:2px;}""")
@@ -50,7 +51,6 @@ class TrainBotUI(QWidget):
         self.layout.addWidget(self.question_list)
         self.layout.addWidget(self.answer_input)
         self.layout.addWidget(self.submit_btn)
-        self.setLayout(self.layout)
         
         self.load_unknown_questions()
         self.brain = self.load_brain()
@@ -98,6 +98,8 @@ class TrainBotUI(QWidget):
 
     def clear_unknown_file(self):
         open(UNKNOWN_FILE, "w").close()
+        
+        
     #background ui setup func
     def set_background_image(self, image_path):
             if not os.path.exists(image_path):

@@ -8,9 +8,9 @@ from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QTextEdit, QLineEdit, QPushButton, QLabel,
     QHBoxLayout, QMessageBox
 )
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal,Qt
 import time
-
+from PyQt5.QtGui import QPixmap,QIcon
 # Load spaCy model
 nlp = spacy.load("en_core_web_md")
 
@@ -59,23 +59,43 @@ class DigiBot(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("💬 DigiBot Help Desk")
-        self.setFixedSize(600, 500)
-
+        self.setFixedSize(900, 600)
+        self.setWindowIcon(QIcon("assets/bgpics/digibotbg.jpg"))
+        #bg pic set
+        self.background_label = QLabel(self)
+        self.bgimgpath = "assets/bgpics/digibotbg.jpg"
+        self.set_background_image(self.bgimgpath)
+        
         # Layout setup
         layout = QVBoxLayout()
         self.chat_display = QTextEdit()
         self.chat_display.setReadOnly(True)
-        self.chat_display.setStyleSheet("background-color: #f0f0f0; font-size: 15px; padding: 10px;")
-
+        self.chat_display.setStyleSheet("background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #c4c2dd, stop: 1  #f10000); font-size: 15px; padding: 10px;")
+        #adressing bot
+        self.adressing=QLabel("🤖 Welcome to DigiNotice. How can I assist you today?")
+        self.adressing.setStyleSheet("color:white; font-weight:bold; font-size: 16px")
+        
+        #chat button part
         self.input_box = QLineEdit()
+        self.input_box.setFixedSize(500,40)
+        self.input_box.setStyleSheet("background-color: #d9b688; font-weight: bold; border: 2px solid #02f707; font-size: 12px; border-radius: 5px;")
         self.input_box.setPlaceholderText("Type your question here...")
         self.input_box.returnPressed.connect(self.process_input)
 
         self.send_btn = QPushButton(" ⏩ Send")
         self.send_btn.clicked.connect(self.process_input)
-
+        self.send_btn.setFixedHeight(40)
+        self.send_btn.setStyleSheet("""
+                                    QPushButton{background-color: ##d759eb;  border: 1px solid #000000;  border-radius: 8px;}
+                                    QPushButton:hover{background-color: #71d247; font-weight: bold; border: 2px solid #02f707; font-size: 14px; border-radius: 8px;}""")
+       
         self.voice_btn = QPushButton("🎤 Speak")
+        self.voice_btn.setFixedHeight(40)
+
         self.voice_btn.clicked.connect(self.listen_voice)
+        self.voice_btn.setStyleSheet("""
+                                    QPushButton{background-color: #d759eb;  border: 1px solid #000000;  border-radius: 8px;}
+                                    QPushButton:hover{background-color: #71d247; font-weight: bold; border: 2px solid #02f707; font-size: 14px; border-radius: 5px;}""")
 
         # Arrange widgets
         btn_layout = QHBoxLayout()
@@ -83,7 +103,7 @@ class DigiBot(QWidget):
         btn_layout.addWidget(self.send_btn)
         btn_layout.addWidget(self.voice_btn)
 
-        layout.addWidget(QLabel("🤖 Ask me anything about DigiNotice"))
+        layout.addWidget(self.adressing)
         layout.addWidget(self.chat_display)
         layout.addLayout(btn_layout)
         self.setLayout(layout)
@@ -155,3 +175,28 @@ class DigiBot(QWidget):
     def handle_error(self, error_message):
         """Handles errors from the voice recognition thread."""
         QMessageBox.warning(self, "Error", error_message)
+    # ✅ To use the Bot instance created in main.py
+    def show_digibot(self):
+        self.main_window.chatbot_widget.show()
+    #background ui setup func
+    def set_background_image(self, image_path):
+            if not os.path.exists(image_path):
+                print("Error: Image not found! Check the file path.")
+                return
+
+            bg_image = QPixmap(image_path)
+            if bg_image.isNull():
+                print("Error: Image not loaded. Check the file format or path.")
+            else:
+                self.background_label.setPixmap(bg_image.scaled(
+                    self.width(), self.height(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation
+                ))
+                self.background_label.setGeometry(0,0, self.width(), self.height())       
+    
+    # ✅ Dynamically update background image on window resize
+    def resizeEvent(self, event):
+        self.set_background_image(self.bgimgpath)  # Reapply scaling
+        super().resizeEvent(event)
+
+
+

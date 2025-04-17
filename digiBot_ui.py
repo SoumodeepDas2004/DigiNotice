@@ -86,16 +86,16 @@ class DigiBot(QWidget):
         self.send_btn.clicked.connect(self.process_input)
         self.send_btn.setFixedHeight(40)
         self.send_btn.setStyleSheet("""
-                                    QPushButton{background-color: ##d759eb;  border: 1px solid #000000;  border-radius: 8px;}
-                                    QPushButton:hover{background-color: #71d247; font-weight: bold; border: 2px solid #02f707; font-size: 14px; border-radius: 8px;}""")
+                                    QPushButton{background-color: #238aaf; font-size: 16px; border: 1px solid #000000;  border-radius: 8px;}
+                                    QPushButton:hover{background-color: #71d247; font-weight: bold; border: 2px solid #02f707; font-size: 16px; border-radius: 8px;}""")
        
         self.voice_btn = QPushButton("🎤 Speak")
         self.voice_btn.setFixedHeight(40)
 
         self.voice_btn.clicked.connect(self.listen_voice)
         self.voice_btn.setStyleSheet("""
-                                    QPushButton{background-color: #d759eb;  border: 1px solid #000000;  border-radius: 8px;}
-                                    QPushButton:hover{background-color: #71d247; font-weight: bold; border: 2px solid #02f707; font-size: 14px; border-radius: 5px;}""")
+                                    QPushButton{background-color: #d759eb; font-size: 16px; border: 1px solid #000000;  border-radius: 8px;}
+                                    QPushButton:hover{background-color: #71d247; font-weight: bold; border: 2px solid #02f707; font-size: 16px; border-radius: 5px;}""")
 
         # Arrange widgets
         btn_layout = QHBoxLayout()

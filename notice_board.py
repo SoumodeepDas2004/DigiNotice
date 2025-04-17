@@ -72,16 +72,6 @@ class NoticeBoard(QWidget):
 
         # ✅ Set up a Help / Support button
         self.help_btn = QPushButton("❓Help")
-        self.help_btn.setStyleSheet('''QPushButton {
-        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #cdffd8, stop: 1 #8aadf1);
-        color: black;
-        font-size: 20px;
-        font-weight: normal;
-        border: 2px solid #02f707; 
-        border-radius: 15px;
-    }
-        QPushButton:hover{background-color: #00598A; color: white; font-weight: bold; border: 2px solid #02f707; font-size: 20px; border-radius: 15px;}
-        ''')
         self.help_btn.setFixedSize(200, 40)
         self.help_btn.clicked.connect(self.show_digibot)
         
@@ -385,6 +375,16 @@ class NoticeBoard(QWidget):
     }
         QPushButton:hover{background-color:#085b4c; color: white; font-weight: bold; border: 2px solid #7FFF00 ; font-size: 20px; border-radius: 15px;}
         ''')
+        self.help_btn.setStyleSheet('''QPushButton {
+        background-color: black;
+        color: white;
+        font-size: 20px;
+        font-weight: normal;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+    }
+        QPushButton:hover{background-color:#085b4c; color: white; font-weight: bold; border: 2px solid #7FFF00 ; font-size: 20px; border-radius: 15px;}
+        ''')
         self.nLabel.setStyleSheet("color: white; font-weight:bold;  ")
 
         self.notice_container.setStyleSheet('''QWidget {
@@ -442,6 +442,16 @@ class NoticeBoard(QWidget):
         QPushButton:hover{background-color: #00598A; color: white; font-weight: bold; border: 2px solid #02f707; font-size: 20px; border-radius: 15px;}
         ''')
         self.logout_btn.setStyleSheet('''QPushButton {
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #cdffd8, stop: 1 #8aadf1);
+        color: black;
+        font-size: 20px;
+        font-weight: normal;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+    }
+        QPushButton:hover{background-color: #00598A; color: white; font-weight: bold; border: 2px solid #02f707; font-size: 20px; border-radius: 15px;}
+        ''')
+        self.help_btn.setStyleSheet('''QPushButton {
         background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #cdffd8, stop: 1 #8aadf1);
         color: black;
         font-size: 20px;

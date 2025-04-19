@@ -25,7 +25,7 @@ class VoiceRecognitionThread(QThread):
 
     def run(self):
         try:
-            model_path = "vosk-model-small-en-in-0.4"  # Adjust to your extracted model path
+            model_path = "assets/vosk-model-small-en-in-0.4"  # Adjust to your extracted model path
             if not os.path.exists(model_path):
                 self.error_occurred.emit("Model not found. Please check the path.")
                 return
@@ -60,7 +60,7 @@ class DigiBot(QWidget):
         super().__init__()
         self.setWindowTitle("💬 DigiBot Help Desk")
         self.setFixedSize(900, 600)
-        self.setWindowIcon(QIcon("assets/bgpics/digibotbg.jpg"))
+        self.setWindowIcon(QIcon("assets/icon_file/boticon.jpg"))
         #bg pic set
         self.background_label = QLabel(self)
         self.bgimgpath = "assets/bgpics/digibotbg.jpg"

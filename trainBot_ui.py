@@ -11,7 +11,7 @@ class TrainBotUI(QWidget):
         super().__init__()
         self.setWindowTitle("🧠DigiBot Trainer")
         self.setFixedSize(900, 600)
-        self.setWindowIcon(QIcon("assets/bgpics/digibotbg.jpg"))
+        self.setWindowIcon(QIcon("assets/icon_file/boticon.jpg"))
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
 

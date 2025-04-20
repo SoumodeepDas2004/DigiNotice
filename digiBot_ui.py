@@ -25,7 +25,8 @@ class VoiceRecognitionThread(QThread):
 
     def run(self):
         try:
-            model_path = "assets/vosk-model-small-en-in-0.4"  # Adjust to your extracted model path
+            model_path = "vosk-model-small-en-in-0.4" 
+            
             if not os.path.exists(model_path):
                 self.error_occurred.emit("Model not found. Please check the path.")
                 return

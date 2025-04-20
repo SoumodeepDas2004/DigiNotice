@@ -1,11 +1,12 @@
 import os
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QPushButton, QMessageBox, 
-    QHBoxLayout, QScrollArea, QTextEdit, QGraphicsOpacityEffect
+    QHBoxLayout, QScrollArea, QTextEdit, QGraphicsOpacityEffect,QLineEdit,QFrame,QSizePolicy
 )
+
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation
-from utils import get_latest_notices, get_summarized_notices
+from utils import get_latest_notices, get_summarized_notices,clear_layout
 from database import Database
 from profile_page import ProfilePage
 from digiBot_ui import DigiBot
@@ -15,7 +16,7 @@ db = Database()
 class NoticeBoard(QWidget):
     def __init__(self, main_window, uniqueid=None):
         super().__init__()
-      
+
         self.main_window = main_window
         self.uniqueid = uniqueid  
         self.profile_pic_path = "profile_pics/default.jpg"  
@@ -32,6 +33,7 @@ class NoticeBoard(QWidget):
         self.set_background_image(self.bgimgpath)
         
         self.setup_header_section()  # ✅ Profile, Edit Button
+        self.setup_search_bar()
 
         self.setup_notice_section()  # ✅ Scrollable Notice List
         self.setup_summary_section() # ✅ Auto-Rotating Summary (Now with Fade Effect)
@@ -124,7 +126,28 @@ class NoticeBoard(QWidget):
             pixmap = QPixmap(self.profile_pic_path).scaled(50, 50, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             self.profile_pic_label.setPixmap(pixmap)
         else:
-            self.profile_pic_label.setPixmap(QPixmap("profile_pics/default.jpg"))  
+            self.profile_pic_label.setPixmap(QPixmap("profile_pics/default.jpg")) 
+            
+    # ================== 🔹 NOTICE Searchbar SECTION ==================
+
+    def setup_search_bar(self):
+        """Search bar for filtering notices by heading"""
+        search_layout = QHBoxLayout()
+        
+        self.search_input = QLineEdit()
+        self.search_input.setAlignment(Qt.AlignCenter)
+        self.search_input.setPlaceholderText("Search by Notice Heading...")
+        self.search_input.setStyleSheet("padding: 5px; border: 1px solid #4CAF50; border-radius: 7px; font:20px;")
+        self.search_input.setFixedSize(1400,50)
+        
+        self.search_button = QPushButton("🔍 Search")
+        self.search_button.clicked.connect(self.perform_search)
+        self.search_button.setFixedSize(200, 40)
+        search_layout.addWidget(self.search_input)
+        search_layout.addWidget(self.search_button)
+        
+        self.layout.addLayout(search_layout)
+ 
 
     # ================== 🔹 NOTICE DISPLAY SECTION ==================
     def setup_notice_section(self):
@@ -138,24 +161,8 @@ class NoticeBoard(QWidget):
         self.notice_layout = QVBoxLayout()
         
         
-        self.nLabelHLAY=QHBoxLayout()
-        self.nLabel=QLabel("NOTICES")
 
-        self.notice_layout.setSpacing(10)  # 🔧 Reduce spacing between heading and scroll area
-        self.notice_layout.setContentsMargins(0, 0, 0, 0)  # 🔧 Remove label padding if any
 
-        self.nLabel.setFixedSize(180,80)
-        self.nLabel.setFont(QFont("Arial", 200))
-        self.nLabel.setAlignment(Qt.AlignCenter)
-        self.nLabelHLAY.setAlignment(Qt.AlignCenter)
-        
-        
-        self.nLabelHLAY.addWidget(self.nLabel)
-
-        self.nLabelHLAY.addSpacing(0)  # No spacing between label and next section
-        self.nLabelHLAY.setContentsMargins(0, 0, 0, 0)  # Remove margins
-
-        self.notice_layout.addLayout(self.nLabelHLAY)
         self.notice_layout.setSpacing(5)  # spacing between notices
         self.notice_layout.addSpacing(0)   # no gap between heading and first notice
 
@@ -198,7 +205,25 @@ class NoticeBoard(QWidget):
     def refresh_notices(self):
         """Fetch and display the latest notices."""
         latest_notices = get_latest_notices(3)
+        
+        self.notice_layout.setSpacing(10)  # 🔧 Reduce spacing between heading and scroll area
+        self.notice_layout.setContentsMargins(0, 0, 0, 0)  # 🔧 Remove label padding if any
+        
+        self.nLabelHLAY=QHBoxLayout()
+        self.nLabel=QLabel("NOTICES")
+        self.nLabel.setStyleSheet("font-weight:bold;")
+        self.nLabel.setFixedSize(180,80)
+        self.nLabel.setFont(QFont("Arial", 200))
+        self.nLabel.setAlignment(Qt.AlignCenter)
+        self.nLabelHLAY.setAlignment(Qt.AlignCenter)
+        
+        
+        self.nLabelHLAY.addWidget(self.nLabel)
 
+        self.nLabelHLAY.addSpacing(0)  # No spacing between label and next section
+        self.nLabelHLAY.setContentsMargins(0, 0, 0, 0)  # Remove margins
+
+        self.notice_layout.addLayout(self.nLabelHLAY)
         for i in reversed(range(self.notice_layout.count())):
             item = self.notice_layout.itemAt(i)
             if item.widget():
@@ -291,6 +316,97 @@ class NoticeBoard(QWidget):
         self.animation.setStartValue(0.0)
         self.animation.setEndValue(1.0)
         self.animation.start()
+        
+        
+        
+    # ================== 🔹 search FUNCTION ==================
+
+    def perform_search(self):
+        query = self.search_input.text().strip().lower()
+        query_words = query.split()
+
+        if not query_words:
+            clear_layout(self.notice_layout)
+            self.refresh_notices()
+            return
+
+        all_notices = get_latest_notices(100)
+        matched_notices = []
+
+        for title, content, file_path, notice_time in all_notices:
+            title_words = title.lower().split()
+            common_words = set(query_words) & set(title_words)
+            match_percent = (len(common_words) / len(query_words)) * 100
+
+            if match_percent >= 75:
+                matched_notices.append((title, content, file_path, notice_time))
+
+        # ✅ Clear previous notices once before adding new ones
+        clear_layout(self.notice_layout)
+        self.notice_layout.setSpacing(10)  # 🔧 Reduce spacing between heading and scroll area
+        
+        self.notice_layout.setContentsMargins(0, 0, 0, 0)  # 🔧 Remove label padding if any
+            
+        self.nLabelHLAY=QHBoxLayout()
+        
+        self.nLabel=QLabel("NOTICES")
+        self.nLabel.setStyleSheet("font-weight:bold;")
+        self.nLabel.setFixedSize(180,80)
+        self.nLabel.setFont(QFont("Arial", 200))
+        self.nLabel.setAlignment(Qt.AlignCenter)
+        self.nLabelHLAY.setAlignment(Qt.AlignCenter)
+        self.nLabelHLAY.addSpacing(0)  # No spacing between label and next section
+        self.nLabelHLAY.setContentsMargins(0, 0, 0, 0)  # Remove margins
+        
+        self.nLabelHLAY.addWidget(self.nLabel)
+        self.notice_layout.addLayout(self.nLabelHLAY)
+            
+
+        if matched_notices:
+            for index, (title, content, file_path, notice_time) in enumerate(matched_notices, start=1):
+                notice_frame = QFrame()
+                notice_frame.setFrameShape(QFrame.Box)
+               
+                notice_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+
+                notice_layout = QVBoxLayout(notice_frame)
+
+                title_label = QLabel(f"{index} 📰 : <b>{title}</b> at ({notice_time})")
+                title_label.setStyleSheet("font-size: 20px;")
+                title_label.setWordWrap(True)
+
+                content_label = QLabel(content)
+                content_label.setWordWrap(True)
+
+                download_button = QPushButton("⬇️ Download")
+                download_button.setStyleSheet("""
+                    background-color: cyan;
+                    border: 2px solid red;
+                    border-radius: 8px;
+                """)
+                download_button.clicked.connect(lambda checked, path=file_path: self.download_file(path))
+
+                notice_layout.addWidget(title_label)
+                notice_layout.addWidget(content_label)
+                notice_layout.addWidget(download_button)
+
+                self.notice_layout.addWidget(notice_frame)
+        else:
+            
+
+            
+
+            
+            nolabelhlay=QHBoxLayout()
+            no_result_label = QLabel("❌ No matching notices found.")
+            no_result_label.setFixedSize(300,130)
+            no_result_label.setAlignment(Qt.AlignCenter)
+            no_result_label.setStyleSheet("color: red; font-weight: bold; font-size: 16px;")
+            nolabelhlay.addWidget(no_result_label)
+            nolabelhlay.setAlignment(Qt.AlignCenter)
+            self.notice_layout.addLayout(nolabelhlay)
+
+
     # ================== 🔹 THEME TOGGLE FUNCTION ==================
     def get_button_style(self):
         """Returns button styles based on the current theme."""
@@ -385,6 +501,17 @@ class NoticeBoard(QWidget):
     }
         QPushButton:hover{background-color:#085b4c; color: white; font-weight: bold; border: 2px solid #7FFF00 ; font-size: 20px; border-radius: 15px;}
         ''')
+        self.search_button.setStyleSheet('''QPushButton {
+        background-color: black;
+        color: white;
+        font-size: 20px;
+        font-weight: normal;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+    }
+        QPushButton:hover{background-color:#085b4c; color: white; font-weight: bold; border: 2px solid #7FFF00 ; font-size: 20px; border-radius: 15px;}
+        ''')
+        
         self.nLabel.setStyleSheet("color: white; font-weight:bold;  ")
 
         self.notice_container.setStyleSheet('''QWidget {
@@ -397,6 +524,9 @@ class NoticeBoard(QWidget):
         QScrollArea{background-color: rgba( 255, 255, 255, 0);}
         QPushButton{background-color: DarkTurquoise; color: black; border: 2px solid red; border-radius: 15px;}
         QPushButton:hover {background-color: red; color: white; border: 2px solid green; border-radius: 15px;}
+        Qlabel{ background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #000000 , stop: 1 #042201);}
+        QFrame{ background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #000000 , stop: 1 #042201);}
+
         ''')
         self.title_label.setStyleSheet(''' QLabel{
         background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #ff0e0e, stop: 1 #5500ff);
@@ -430,7 +560,7 @@ class NoticeBoard(QWidget):
     }
         QPushButton:hover{background-color: #00598A; color: white; font-weight: bold; border: 2px solid #02f707; font-size: 20px; border-radius: 15px;}
         ''')
-
+       
         self.theme_toggle_btn.setStyleSheet('''QPushButton {
         background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #cdffd8, stop: 1 #8aadf1);
         color: black;
@@ -461,6 +591,17 @@ class NoticeBoard(QWidget):
     }
         QPushButton:hover{background-color: #00598A; color: white; font-weight: bold; border: 2px solid #02f707; font-size: 20px; border-radius: 15px;}
         ''')
+        self.search_button.setStyleSheet('''QPushButton {
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #cdffd8, stop: 1 #8aadf1);
+        color: black;
+        font-size: 20px;
+        font-weight: normal;
+        border: 2px solid #02f707; 
+        border-radius: 15px;
+    }
+        QPushButton:hover{background-color: #00598A; color: white; font-weight: bold; border: 2px solid #02f707; font-size: 20px; border-radius: 15px;}
+        ''')
+    
         self.nLabel.setStyleSheet("color: black; font-weight:bold;")
         self.notice_container.setStyleSheet('''QWidget {
             background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #fffcff, stop: 1 #f6e93f);
@@ -471,6 +612,8 @@ class NoticeBoard(QWidget):
             border-radius: 15px;}
             QPushButton{background-color: DarkTurquoise; color: black; border: 2px solid red; border-radius: 15px;}
             QPushButton:hover {background-color: red; color: white; border: 2px solid green; border-radius: 15px;}
+            QFrame{background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #fffcff, stop: 1 #f6e93f);}
+
             ''')
         self.title_label.setStyleSheet(''' QLabel{
             background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #ad0808, stop: 1 #290374);

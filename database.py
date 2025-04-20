@@ -15,6 +15,7 @@ class Database:
                 user="admin092004",
                 password="@Admin2004",
                 database="notice_board_db",
+                auth_plugin='mysql_native_password',  # <- this is important
                 autocommit=True  # ✅ Auto-commit changes
             )
             self.cursor = self.conn.cursor()
@@ -27,7 +28,9 @@ class Database:
         temp_conn = mysql.connector.connect(
             host="127.0.0.1",
             user="admin092004",
-            password="@Admin2004"
+            password="@Admin2004",
+            auth_plugin='mysql_native_password',  # <- this is important
+
         )
         temp_cursor = temp_conn.cursor()
         temp_cursor.execute("CREATE DATABASE IF NOT EXISTS notice_board_db;")

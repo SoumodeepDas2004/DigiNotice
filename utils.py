@@ -217,3 +217,13 @@ def summarize_file(file_path):
 
     cleaned_text = clean_text(text)
     return summarize_text(cleaned_text)
+
+
+#clearing notice 
+def clear_layout(layout):
+    while layout.count():
+        child = layout.takeAt(0)
+        if child.widget():
+            child.widget().deleteLater()
+        elif child.layout():
+            clear_layout(child.layout())

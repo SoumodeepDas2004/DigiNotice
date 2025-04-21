@@ -1,11 +1,11 @@
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFileDialog, 
-    QListWidget, QLineEdit, QListWidgetItem
+    QListWidget, QLineEdit, QListWidgetItem, QComboBox, QTextEdit, QMessageBox
 )
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
-from utils import add_notice, get_all_notices, delete_notice
-from utils import get_all_users, delete_user
+from utils import add_notice, get_all_notices, delete_notice, print_all_notices
+from utils import get_all_users, delete_user, summarize_text, validate_category
 from utils import summarize_file
 from trainBot_ui import TrainBotUI
 import os
@@ -105,11 +105,18 @@ class AdminPanel(QWidget):
         self.Nnoticename.setStyleSheet('''QLineEdit{background-color: rgba(0,0,0,150); color: rgba(70, 229, 208, 1); border: 2px solid yellow; font-size: 16px;}
                             ''')
 
+        
         upload_btn = QPushButton("📤 Upload Notice")
         upload_btn.setFixedSize(200,36)
         upload_btn.setStyleSheet("QPushButton{font-weight: bold; border: 2px solid #02f707; border-radius:15px;}")
         upload_btn.clicked.connect(self.upload_notice)
 
+        # Category Dropdown (Add this before Upload Button)
+        self.category_dropdown = QComboBox()
+        self.category_dropdown.setFixedSize(200,40)
+        self.category_dropdown.addItem("All")
+        self.category_dropdown.addItems(["Academics", "Events", "Exams", "Circulars", "Deadlines"])
+        
         self.notice_upload_label = QLabel("Notice Name:")
         self.notice_upload_label.setFixedSize(190,35)
         self.notice_upload_label.setAlignment(Qt.AlignCenter)
@@ -117,6 +124,7 @@ class AdminPanel(QWidget):
         notice_upload_layout.addWidget(self.notice_upload_label)
         notice_upload_layout.addWidget(self.Nnoticename)
         notice_upload_layout.addWidget(upload_btn)
+        notice_upload_layout.addWidget(self.category_dropdown)
 
         self.layout.addLayout(notice_upload_layout)
 
@@ -240,8 +248,9 @@ class AdminPanel(QWidget):
         file_path, _ = QFileDialog.getOpenFileName(self, "Upload Notice", "", "PDF Files (*.pdf);;Image Files (*.png *.jpg *.jpeg)")
         if file_path:
             Noticename = self.Nnoticename.text()
+            category = self.category_dropdown.currentText()
             summary = summarize_file(file_path)
-            add_notice(Noticename, "Content extracted from file", summary, file_path)  # ✅ Store file path
+            add_notice(Noticename, "Content extracted from file", summary, file_path, category)  # ✅ Store file path
             self.refresh_notices()
 
     def delete_selected_notice(self):
@@ -328,4 +337,33 @@ class AdminPanel(QWidget):
         self.train_bot_ui = TrainBotUI()
         self.train_bot_ui.show()
 
-        
+
+    def select_file(self):
+        """Open a file dialog to select a file."""
+        file_dialog = QFileDialog(self)
+        file_path, _ = file_dialog.getOpenFileName(self, "Select a file")
+        if file_path:
+            self.file_path = file_path  # Store the selected file path
+            print(f"File selected: {file_path}")
+
+    def add_notice(self):
+        """Handle adding a new notice to the database."""
+        category = self.category_dropdown.currentText()
+        if not validate_category(category):
+            QMessageBox.warning(self, "Invalid Category", f"'{category}' is not a valid category.")
+            return
+
+        title = self.title_input.text()
+        content = self.content_input.toPlainText()
+        file_path = self.file_path if hasattr(self, 'file_path') else None
+        summary = summarize_text(content)
+
+        try:
+            add_notice(title, content, summary, file_path, category)
+            QMessageBox.information(self, "Success", "Notice added successfully.")
+             # ✅ DEBUG: Print all notices to verify category is saved
+            print_all_notices()
+            self.title_input.clear()
+            self.content_input.clear()
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to add notice: {e}")

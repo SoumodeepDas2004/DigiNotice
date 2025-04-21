@@ -67,28 +67,61 @@ def delete_user(unique_id):
 """ from notice_manager.py """
 
 # 🔹 Add Notice
-def add_notice(title, content, summary, file_path):
-    query = "INSERT INTO notices (title, content, summary, file_path) VALUES (%s, %s, %s, %s)"
-    db.execute_query(query, (title, content, summary, file_path))
+def add_notice(title, content, summary, file_path, category):
+    """
+    Add a new notice to the database with title, content, summary, file path, and category.
+
+    Args:
+        title (str): Title of the notice.
+        content (str): Full content of the notice.
+        summary (str): Summary or extracted text from a PDF or image.
+        file_path (str): Path to the notice file (PDF/image).
+        category (str): Category of the notice (e.g., Academics, Events, Exams, etc.)
+    """
+    query = """
+    INSERT INTO notices (title, content, summary, file_path, category)
+    VALUES (%s, %s, %s, %s, %s)
+    """
+    params = (title, content, summary, file_path, category)
+    db.execute_query(query, params)
 
 # 🔹 Get Latest Notices (for Notice Board)
-def get_latest_notices(limit=4):
+def get_latest_notices(limit=4, category=None):
     print("🔍 Fetching notices from database...")
-    query = "SELECT title, content, file_path, summary, created_at FROM notices ORDER BY created_at DESC LIMIT %s"
-    notices = db.fetch_data(query, (limit,))
 
-    
-    # print(f"✅ Notices Fetched: {notices}")  # <-- Debugging
+    # Check if a category is provided and it's not "All"
+    if category and category != "All":
+        # Query with category filter and case-insensitive matching
+        query = """
+            SELECT title, content, file_path, summary, created_at 
+            FROM notices 
+            WHERE LOWER(category) = LOWER(%s) 
+            ORDER BY created_at DESC 
+            LIMIT %s
+        """
+        notices = db.fetch_data(query, (category.lower(), limit))
+    else:
+        # Query to fetch all notices if category is "All" or None
+        query = """
+            SELECT title, content, file_path, summary, created_at 
+            FROM notices 
+            ORDER BY created_at DESC 
+            LIMIT %s
+        """
+        notices = db.fetch_data(query, (limit,))
+
+    # Process fetched notices
     processed_notices = []
 
     for title, content, file_path, summary, notice_time in notices:
-        print(f"📜 Processing: {title}, {file_path}")  # <-- Debugging
+        print(f"📜 Processing: {title}, {file_path}")  # Debugging: Check file path and title
 
+        # Check if content is extracted from a file
         if content == "Content extracted from file" and file_path:
             if os.path.exists(file_path):
                 file_type, _ = mimetypes.guess_type(file_path)
 
-                if file_type and file_type.startswith("text"):  # Read only text files
+                if file_type and file_type.startswith("text"):  # Only process text files
                     try:
                         with open(file_path, "r", encoding="utf-8") as file:
                             content = file.read()
@@ -97,14 +130,15 @@ def get_latest_notices(limit=4):
                     except Exception as e:
                         content = f"❌ Error reading file: {e}"
                 else:
-                    content = " ".join(summary.split()[:35]) + "..."  # ✅ Show first 35 words of summary
+                    content = " ".join(summary.split()[:35]) + "..."  # Display first 35 words of summary
             else:
                 content = "❌ File not found"
 
         processed_notices.append((title, content, file_path, notice_time))
 
-    print(f"✅ Processed Notices: {processed_notices}")  # <-- Debugging
+    print(f"✅ Processed Notices: {processed_notices}")  # Debugging: Check processed notices
     return processed_notices
+
 
 # 🔹 Get Summarized Notices (for Rotating Summaries)
 def get_summarized_notices(limit=5):
@@ -154,6 +188,17 @@ def refreshid():
         except Exception as e:
             print(f"❌ Error in ID Reset: {e}")
 
+def validate_category(category):
+    valid_categories = ["Academics", "Events", "Exams", "Circulars", "Deadlines"]
+    if category not in valid_categories:
+        return False
+    return True
+
+def print_all_notices():
+    query = "SELECT title, category FROM notices ORDER BY created_at DESC"
+    notices = db.fetch_data(query)
+    for title, category in notices:
+        print(f"📄 {title} | Category: {category}")
 
 
 """ from summarization.py """

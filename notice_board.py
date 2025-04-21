@@ -1,6 +1,6 @@
 import os
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QPushButton, QMessageBox, 
+    QWidget, QVBoxLayout, QLabel, QPushButton, QMessageBox, QComboBox,
     QHBoxLayout, QScrollArea, QTextEdit, QGraphicsOpacityEffect,QLineEdit,QFrame,QSizePolicy
 )
 
@@ -23,6 +23,7 @@ class NoticeBoard(QWidget):
         
         # 🔹 Main Layout
         self.layout = QVBoxLayout()
+
         self.layout.setSpacing(30)  # 💡 Ensures equal vertical spacing between elements  
         self.layout.setContentsMargins(20, 20, 20, 20)  # 💡 Optional: adds clean margins around edges
         self.setLayout(self.layout)  
@@ -135,6 +136,16 @@ class NoticeBoard(QWidget):
         search_layout = QHBoxLayout()
         
         self.search_input = QLineEdit()
+
+        # Create category dropdown
+        self.category_dropdown = QComboBox()
+        self.category_dropdown.addItem("All")
+        self.category_dropdown.addItems(["Academics", "Events", "Exams", "Circulars", "Deadlines"])
+        self.category_dropdown.setFixedSize(200,40)  
+
+        # Connect category dropdown change to search_notices
+        self.category_dropdown.currentIndexChanged.connect(self.perform_search)
+
         self.search_input.setAlignment(Qt.AlignCenter)
         self.search_input.setPlaceholderText("Search by Notice Heading...")
         self.search_input.setStyleSheet("padding: 5px; border: 1px solid #4CAF50; border-radius: 7px; font:20px;")
@@ -144,6 +155,7 @@ class NoticeBoard(QWidget):
         self.search_button.clicked.connect(self.perform_search)
         self.search_button.setFixedSize(200, 40)
         search_layout.addWidget(self.search_input)
+        search_layout.addWidget(self.category_dropdown)
         search_layout.addWidget(self.search_button)
         
         self.layout.addLayout(search_layout)
@@ -204,7 +216,8 @@ class NoticeBoard(QWidget):
     # ================== 🔹 REFRESH NOTICES ==================
     def refresh_notices(self):
         """Fetch and display the latest notices."""
-        latest_notices = get_latest_notices(3)
+        selected_category = self.category_dropdown.currentText()
+        latest_notices = get_latest_notices(4, selected_category)
         
         self.notice_layout.setSpacing(10)  # 🔧 Reduce spacing between heading and scroll area
         self.notice_layout.setContentsMargins(0, 0, 0, 0)  # 🔧 Remove label padding if any
@@ -323,50 +336,51 @@ class NoticeBoard(QWidget):
 
     def perform_search(self):
         query = self.search_input.text().strip().lower()
+        selected_category = self.category_dropdown.currentText()  # ✅ Get selected category
         query_words = query.split()
 
-        if not query_words:
+        if not query_words and selected_category == "All":
             clear_layout(self.notice_layout)
             self.refresh_notices()
             return
 
-        all_notices = get_latest_notices(100)
+        all_notices = get_latest_notices(limit = 4, category = selected_category)
+        
+        # ✅ Filter by category if selected
+        if selected_category != "All":
+            all_notices = [n for n in all_notices if len(n) > 4 and n[4] == selected_category]
+
         matched_notices = []
 
-        for title, content, file_path, notice_time in all_notices:
+        for notice in all_notices:
+            title, content, file_path, notice_time = notice[:4]
             title_words = title.lower().split()
             common_words = set(query_words) & set(title_words)
-            match_percent = (len(common_words) / len(query_words)) * 100
+            match_percent = (len(common_words) / len(query_words)) * 100 if query_words else 100
 
-            if match_percent >= 75:
+            if match_percent >= 75 or not query_words:
                 matched_notices.append((title, content, file_path, notice_time))
 
-        # ✅ Clear previous notices once before adding new ones
         clear_layout(self.notice_layout)
-        self.notice_layout.setSpacing(10)  # 🔧 Reduce spacing between heading and scroll area
-        
-        self.notice_layout.setContentsMargins(0, 0, 0, 0)  # 🔧 Remove label padding if any
-            
-        self.nLabelHLAY=QHBoxLayout()
-        
-        self.nLabel=QLabel("NOTICES")
+        self.notice_layout.setSpacing(10)
+        self.notice_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.nLabelHLAY = QHBoxLayout()
+        self.nLabel = QLabel("NOTICES")
         self.nLabel.setStyleSheet("font-weight:bold;")
-        self.nLabel.setFixedSize(180,80)
+        self.nLabel.setFixedSize(180, 80)
         self.nLabel.setFont(QFont("Arial", 200))
         self.nLabel.setAlignment(Qt.AlignCenter)
         self.nLabelHLAY.setAlignment(Qt.AlignCenter)
-        self.nLabelHLAY.addSpacing(0)  # No spacing between label and next section
-        self.nLabelHLAY.setContentsMargins(0, 0, 0, 0)  # Remove margins
-        
+        self.nLabelHLAY.addSpacing(0)
+        self.nLabelHLAY.setContentsMargins(0, 0, 0, 0)
         self.nLabelHLAY.addWidget(self.nLabel)
         self.notice_layout.addLayout(self.nLabelHLAY)
-            
 
         if matched_notices:
             for index, (title, content, file_path, notice_time) in enumerate(matched_notices, start=1):
                 notice_frame = QFrame()
                 notice_frame.setFrameShape(QFrame.Box)
-               
                 notice_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
                 notice_layout = QVBoxLayout(notice_frame)
@@ -392,14 +406,9 @@ class NoticeBoard(QWidget):
 
                 self.notice_layout.addWidget(notice_frame)
         else:
-            
-
-            
-
-            
-            nolabelhlay=QHBoxLayout()
+            nolabelhlay = QHBoxLayout()
             no_result_label = QLabel("❌ No matching notices found.")
-            no_result_label.setFixedSize(300,130)
+            no_result_label.setFixedSize(300, 130)
             no_result_label.setAlignment(Qt.AlignCenter)
             no_result_label.setStyleSheet("color: red; font-weight: bold; font-size: 16px;")
             nolabelhlay.addWidget(no_result_label)
@@ -661,3 +670,26 @@ class NoticeBoard(QWidget):
     # ✅ To use the Bot instance created in main.py
     def show_digibot(self):
         self.main_window.chatbot_widget.show()
+
+    def filter_notices(self):
+        """Filter notices based on the selected category."""
+        selected_category = self.category_filter.currentText()
+        
+        # Modify the query to filter by category
+        query = "SELECT * FROM notices WHERE category = %s" if selected_category != "All" else "SELECT * FROM notices"
+        
+        # Execute the query to fetch filtered notices from the database
+        notices = db.fetch_data(query, (selected_category,) if selected_category != "All" else None)
+
+        # Process and display notices
+        self.update_notices_display(notices)
+
+    def update_notices_display(self, notices):
+        """Update the display area with the filtered notices."""
+        self.notice_display_area.clear()  # Clear existing notices
+
+        # Populate the display area with the filtered notices
+        for notice in notices:
+            # Assuming your notice has columns (id, title, content, summary, file_path, created_at)
+            notice_title = notice[1]  # The title of the notice (adjust index as needed)
+            self.notice_display_area.addItem(notice_title)  # Add title to the list

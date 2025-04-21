@@ -54,6 +54,7 @@ class Database:
             summary TEXT,
             file_path VARCHAR(255),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            category VARCHAR(50)
         );
         """
         self.execute_query(user_table_query)

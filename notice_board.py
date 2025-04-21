@@ -144,7 +144,7 @@ class NoticeBoard(QWidget):
         self.category_dropdown.setFixedSize(200,40)  
 
         # Connect category dropdown change to search_notices
-        self.category_dropdown.currentIndexChanged.connect(self.perform_search)
+        self.category_dropdown.currentIndexChanged.connect(self.searchorfilter)
 
         self.search_input.setAlignment(Qt.AlignCenter)
         self.search_input.setPlaceholderText("Search by Notice Heading...")
@@ -336,86 +336,89 @@ class NoticeBoard(QWidget):
     # ================== 🔹 search FUNCTION ==================
 
     def perform_search(self):
-        query = self.search_input.text().strip().lower()
-        selected_category = self.category_dropdown.currentText()  # ✅ Get selected category
-        query_words = query.split()
+            query = self.search_input.text().strip().lower()
+            query_words = query.split()
 
-        if not query_words and selected_category == "All":
+            if not query_words:
+                clear_layout(self.notice_layout)
+                self.refresh_notices()
+                return
+
+            all_notices = get_latest_notices(100)
+            matched_notices = []
+
+            for title, content, file_path, notice_time in all_notices:
+                title_words = title.lower().split()
+                common_words = set(query_words) & set(title_words)
+                match_percent = (len(common_words) / len(query_words)) * 100
+
+                if match_percent >= 75:
+                    matched_notices.append((title, content, file_path, notice_time))
+
+            # ✅ Clear previous notices once before adding new ones
             clear_layout(self.notice_layout)
-            self.refresh_notices()
-            return
+            self.notice_layout.setSpacing(10)  # 🔧 Reduce spacing between heading and scroll area
+            
+            self.notice_layout.setContentsMargins(0, 0, 0, 0)  # 🔧 Remove label padding if any
+                
+            self.nLabelHLAY=QHBoxLayout()
+            
+            self.nLabel=QLabel("NOTICES")
+            self.nLabel.setStyleSheet("font-weight:bold;")
+            self.nLabel.setFixedSize(180,80)
+            self.nLabel.setFont(QFont("Arial", 200))
+            self.nLabel.setAlignment(Qt.AlignCenter)
+            self.nLabelHLAY.setAlignment(Qt.AlignCenter)
+            self.nLabelHLAY.addSpacing(0)  # No spacing between label and next section
+            self.nLabelHLAY.setContentsMargins(0, 0, 0, 0)  # Remove margins
+            
+            self.nLabelHLAY.addWidget(self.nLabel)
+            self.notice_layout.addLayout(self.nLabelHLAY)
+                
 
-        all_notices = get_latest_notices(limit = 4, category = selected_category)
-        
-        # ✅ Filter by category if selected
-        if selected_category != "All":
-            all_notices = [n for n in all_notices if len(n) > 4 and n[4] == selected_category]
+            if matched_notices:
+                for index, (title, content, file_path, notice_time) in enumerate(matched_notices, start=1):
+                    notice_frame = QFrame()
+                    notice_frame.setFrameShape(QFrame.Box)
+                
+                    notice_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
-        matched_notices = []
+                    notice_layout = QVBoxLayout(notice_frame)
 
-        for notice in all_notices:
-            title, content, file_path, notice_time = notice[:4]
-            title_words = title.lower().split()
-            common_words = set(query_words) & set(title_words)
-            match_percent = (len(common_words) / len(query_words)) * 100 if query_words else 100
+                    title_label = QLabel(f"{index} 📰 : <b>{title}</b> at ({notice_time})")
+                    title_label.setStyleSheet("font-size: 20px;")
+                    title_label.setWordWrap(True)
 
-            if match_percent >= 75 or not query_words:
-                matched_notices.append((title, content, file_path, notice_time))
+                    content_label = QLabel(content)
+                    content_label.setWordWrap(True)
 
-        clear_layout(self.notice_layout)
-        self.notice_layout.setSpacing(10)
-        self.notice_layout.setContentsMargins(0, 0, 0, 0)
+                    download_button = QPushButton("⬇️ Download")
+                    download_button.setStyleSheet("""
+                        background-color: cyan;
+                        border: 2px solid red;
+                        border-radius: 8px;
+                    """)
+                    download_button.clicked.connect(lambda checked, path=file_path: self.download_file(path))
 
-        self.nLabelHLAY = QHBoxLayout()
-        self.nLabel = QLabel("NOTICES")
-        self.nLabel.setStyleSheet("font-weight:bold;")
-        self.nLabel.setFixedSize(180, 80)
-        self.nLabel.setFont(QFont("Arial", 200))
-        self.nLabel.setAlignment(Qt.AlignCenter)
-        self.nLabelHLAY.setAlignment(Qt.AlignCenter)
-        self.nLabelHLAY.addSpacing(0)
-        self.nLabelHLAY.setContentsMargins(0, 0, 0, 0)
-        self.nLabelHLAY.addWidget(self.nLabel)
-        self.notice_layout.addLayout(self.nLabelHLAY)
+                    notice_layout.addWidget(title_label)
+                    notice_layout.addWidget(content_label)
+                    notice_layout.addWidget(download_button)
 
-        if matched_notices:
-            for index, (title, content, file_path, notice_time) in enumerate(matched_notices, start=1):
-                notice_frame = QFrame()
-                notice_frame.setFrameShape(QFrame.Box)
-                notice_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+                    self.notice_layout.addWidget(notice_frame)
+            else:
+                
 
-                notice_layout = QVBoxLayout(notice_frame)
+                
 
-                title_label = QLabel(f"{index} 📰 : <b>{title}</b> at ({notice_time})")
-                title_label.setStyleSheet("font-size: 20px;")
-                title_label.setWordWrap(True)
-
-                content_label = QLabel(content)
-                content_label.setWordWrap(True)
-
-                download_button = QPushButton("⬇️ Download")
-                download_button.setStyleSheet("""
-                    background-color: cyan;
-                    border: 2px solid red;
-                    border-radius: 8px;
-                """)
-                download_button.clicked.connect(lambda checked, path=file_path: self.download_file(path))
-
-                notice_layout.addWidget(title_label)
-                notice_layout.addWidget(content_label)
-                notice_layout.addWidget(download_button)
-
-                self.notice_layout.addWidget(notice_frame)
-        else:
-            nolabelhlay = QHBoxLayout()
-            no_result_label = QLabel("❌ No matching notices found.")
-            no_result_label.setFixedSize(300, 130)
-            no_result_label.setAlignment(Qt.AlignCenter)
-            no_result_label.setStyleSheet("color: red; font-weight: bold; font-size: 16px;")
-            nolabelhlay.addWidget(no_result_label)
-            nolabelhlay.setAlignment(Qt.AlignCenter)
-            self.notice_layout.addLayout(nolabelhlay)
-
+                
+                nolabelhlay=QHBoxLayout()
+                no_result_label = QLabel("❌ No matching notices found.")
+                no_result_label.setFixedSize(300,130)
+                no_result_label.setAlignment(Qt.AlignCenter)
+                no_result_label.setStyleSheet("color: red; font-weight: bold; font-size: 16px;")
+                nolabelhlay.addWidget(no_result_label)
+                nolabelhlay.setAlignment(Qt.AlignCenter)
+                self.notice_layout.addLayout(nolabelhlay)
 
     # ================== 🔹 THEME TOGGLE FUNCTION ==================
     def get_button_style(self):
@@ -674,23 +677,74 @@ class NoticeBoard(QWidget):
 
     def filter_notices(self):
         """Filter notices based on the selected category."""
-        selected_category = self.category_filter.currentText()
-        
-        # Modify the query to filter by category
-        query = "SELECT * FROM notices WHERE category = %s" if selected_category != "All" else "SELECT * FROM notices"
-        
-        # Execute the query to fetch filtered notices from the database
-        notices = db.fetch_data(query, (selected_category,) if selected_category != "All" else None)
+        selected_category = self.category_dropdown.currentText()
+        print("selected:"+selected_category )
+        if selected_category == "All":
+            query = "SELECT * FROM notices"
+            notices = db.fetch_data(query)
+        else:
+            query = "SELECT * FROM notices WHERE category = %s"
+            notices = db.fetch_data(query, (selected_category,))
 
-        # Process and display notices
+
         self.update_notices_display(notices)
 
-    def update_notices_display(self, notices):
-        """Update the display area with the filtered notices."""
-        self.notice_display_area.clear()  # Clear existing notices
 
-        # Populate the display area with the filtered notices
-        for notice in notices:
-            # Assuming your notice has columns (id, title, content, summary, file_path, created_at)
-            notice_title = notice[1]  # The title of the notice (adjust index as needed)
-            self.notice_display_area.addItem(notice_title)  # Add title to the list
+    def update_notices_display(self, notices):
+        """Update the scroll area to show filtered notices."""
+        clear_layout(self.notice_layout)  # ✅ Use your utils method
+        self.nLabel=QLabel("NOTICES")
+        self.nLabel.setStyleSheet("font-weight:bold;")
+        self.nLabel.setFixedSize(180,80)       
+        self.nLabel.setFont(QFont("Arial", 200))
+        self.nLabel.setAlignment(Qt.AlignCenter)
+        self.nLabelHLAY.setAlignment(Qt.AlignCenter)
+        self.nLabelHLAY.addSpacing(0)  # No spacing between label and next section
+        self.nLabelHLAY.setContentsMargins(0, 0, 0, 0)  # Remove margins   
+        self.nLabelHLAY.addWidget(self.nLabel)
+        self.notice_layout.addLayout(self.nLabelHLAY)            
+        if not notices:
+            no_result_label_hlay=QHBoxLayout()
+            no_result_label = QLabel("❌ No notices found for this category.")
+            no_result_label.setStyleSheet(" font-weight: bold; font-size: 16px;")
+            no_result_label_hlay.addWidget(no_result_label)
+            no_result_label.setAlignment(Qt.AlignCenter)
+            no_result_label_hlay.setAlignment(Qt.AlignCenter)
+
+            self.notice_layout.addLayout(no_result_label_hlay)
+            return
+
+        for index, notice in enumerate(notices, start=1):
+            id, title,content, summary, file_path,created_at= notice[:6]
+            notice_frame = QFrame()
+            notice_frame.setFrameShape(QFrame.Box)
+
+            notice_layout = QVBoxLayout(notice_frame)
+
+            title_label = QLabel(f"{index} 📰 : <b>{title}</b> at ::({created_at})")
+            title_label.setStyleSheet("font-size: 20px;")
+            title_label.setWordWrap(True)
+            title_label.setFixedHeight(30)
+            content_label = QLabel(summary)
+            content_label.setWordWrap(True)
+            content_label.setStyleSheet("font-size: 16px;")
+            
+            download_button = QPushButton("⬇️ Download")
+            download_button.setStyleSheet("""
+                background-color: cyan;
+                border: 2px solid red;
+                border-radius: 8px;
+            """)
+            download_button.clicked.connect(lambda checked, path=file_path: self.download_file(path))
+
+            notice_layout.addWidget(title_label)
+            notice_layout.addWidget(content_label)
+            notice_layout.addWidget(download_button)
+
+            self.notice_layout.addWidget(notice_frame)
+    def searchorfilter(self):
+        """Search or filter notices based on user input."""
+        if self.search_input.text():
+            self.perform_search()
+        else:
+            self.filter_notices()

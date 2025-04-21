@@ -176,7 +176,8 @@ def refreshid():
             content TEXT,
             summary TEXT,
             file_path VARCHAR(255),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            category VARCHAR(255)
         );""",
         "INSERT INTO notices (title, content, summary, file_path, created_at) SELECT title, content, summary, file_path, created_at FROM temp_notices;",
         "DROP TABLE temp_notices;"

@@ -9,6 +9,7 @@ from utils import get_all_users, delete_user, summarize_text, validate_category
 from utils import summarize_file
 from trainBot_ui import TrainBotUI
 import os
+from utils import clear_layout  # if not already imported
 
 class AdminPanel(QWidget):
     def __init__(self, main_window):
@@ -54,8 +55,14 @@ class AdminPanel(QWidget):
         header_layout = QHBoxLayout()
 
         self.title = QLabel("🔧 Admin Panel")
+        self.title.setFixedSize(300,80)
         self.title.setAlignment(Qt.AlignCenter)
-        self.title.setStyleSheet("font-size: 24px; font-weight: bold; color: white; background-color:#006328")
+        self.title.setStyleSheet(""" QLabel{
+        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #045e28, stop: 1 #17bb2c);
+        color: white;
+        font:25px;
+        font-weight:bold;}
+        """)
 
         # 🔹 Admin Profile Picture
         self.profile_pic_label = QLabel()
@@ -80,11 +87,25 @@ class AdminPanel(QWidget):
     # ================== 🔹 NOTICE MANAGEMENT SECTION ==================
     def setup_notice_management(self):
         """Setup UI components for notice management."""
+        
         self.notice_label = QLabel("📜 Notices:")
-        self.notice_label.setFixedSize(200,20)
-        self.notice_label.setStyleSheet("QLabel{color: white; font-size: 18px; font-weight: bold;}")
+        self.notice_label.setFixedSize(200,50)
+        self.notice_label.setStyleSheet("padding: 5px; border: 1px solid #4CAF50; border-radius: 7px; font:20px; color: white; font-weight:bold;")
         self.layout.addWidget(self.notice_label)
+        
+        search_layout = QHBoxLayout()
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("Search notice by title...")
+        self.search_input.setStyleSheet("padding: 3px; border: 1px solid #4CAF50; border-radius: 7px; font:17px;")
+        self.search_input.setFixedSize(1400,50)
+        search_button = QPushButton("🔍 Search")
+        search_button.clicked.connect(self.perform_search)
+        search_button.setFixedSize(200, 40)
+        search_button.setStyleSheet("border-radius:5px")
+        search_layout.addWidget(self.search_input)
+        search_layout.addWidget(search_button)
 
+        self.layout.addLayout(search_layout)
         # 🔹 List of Notices
         self.notice_list = QListWidget()
         self.notice_list.setFixedSize(1900, 400)
@@ -147,7 +168,7 @@ class AdminPanel(QWidget):
         # 🔹 List of Users
         
         self.user_list = QListWidget()
-        self.user_list.setFixedSize(1900,200)
+        self.user_list.setFixedSize(1900,170)
         
         self.user_list.setStyleSheet(   """
                                         QListWidget{background-color: rgba(0,0,0,150); color: yellow; font-weight:bold ; border:2px solid #02f707 ; border-radius: 10px;display: flex;align-items: center;}
@@ -245,13 +266,20 @@ class AdminPanel(QWidget):
     # ================== 🔹 NOTICE MANAGEMENT FUNCTIONS ==================
     def upload_notice(self):
         """Handles the process of uploading a new notice."""
+        Noticename = self.Nnoticename.text().strip()
+
+        if not Noticename:
+            QMessageBox.warning(self, "Missing Title", "❌ Please enter a notice title before uploading.")
+            return
+
         file_path, _ = QFileDialog.getOpenFileName(self, "Upload Notice", "", "PDF Files (*.pdf);;Image Files (*.png *.jpg *.jpeg)")
+
         if file_path:
-            Noticename = self.Nnoticename.text()
             category = self.category_dropdown.currentText()
             summary = summarize_file(file_path)
-            add_notice(Noticename, "Content extracted from file", summary, file_path, category)  # ✅ Store file path
+            add_notice(Noticename, "Content extracted from file", summary, file_path, category)
             self.refresh_notices()
+            QMessageBox.information(self, "Success", "✅ Notice uploaded successfully!")
 
     def delete_selected_notice(self):
         """Deletes a selected notice and refreshes both the admin & user notice board."""
@@ -336,7 +364,7 @@ class AdminPanel(QWidget):
     def open_train_bot(self):
         self.train_bot_ui = TrainBotUI()
         self.train_bot_ui.show()
-
+    
 
     def select_file(self):
         """Open a file dialog to select a file."""
@@ -345,7 +373,7 @@ class AdminPanel(QWidget):
         if file_path:
             self.file_path = file_path  # Store the selected file path
             print(f"File selected: {file_path}")
-
+    
     def add_notice(self):
         """Handle adding a new notice to the database."""
         category = self.category_dropdown.currentText()
@@ -367,3 +395,34 @@ class AdminPanel(QWidget):
             self.content_input.clear()
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to add notice: {e}")
+    def perform_search(self):
+        query = self.search_input.text().strip().lower()
+        query_words = query.split()
+
+        self.notice_list.clear()
+
+        if not query_words:
+            self.refresh_notices()
+            return
+
+        all_notices = get_all_notices()
+        matched_notices = []
+
+        for notice_id, title, summary, created_at, file_path in all_notices:
+            title_words = title.lower().split()
+            common_words = set(query_words) & set(title_words)
+            match_percent = (len(common_words) / len(query_words)) * 100
+
+            if match_percent >= 75:
+                item_text = f"📢 {title} - {summary} ({created_at})"
+                item = QListWidgetItem(item_text)
+                item.setData(Qt.UserRole, notice_id)
+                matched_notices.append(item)
+
+        if matched_notices:
+            for item in matched_notices:
+                self.notice_list.addItem(item)
+        else:
+            no_result_item = QListWidgetItem("❌ No matching notices found.")
+            no_result_item.setFlags(Qt.NoItemFlags)
+            self.notice_list.addItem(no_result_item)

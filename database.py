@@ -53,7 +53,7 @@ class Database:
             content TEXT,
             summary TEXT,
             file_path VARCHAR(255),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             category VARCHAR(50)
         );
         """

@@ -321,15 +321,16 @@ class NoticeBoard(QWidget):
 
     def change_summary_text(self):
         """Update the summary and fade it back in smoothly in a loop."""
-        self.current_summary_index = (self.current_summary_index + 1) % len(self.summaries)  
-        self.summary_display.setText(self.summaries[self.current_summary_index])
+        if len(self.summaries) != 0: 
+            self.current_summary_index = (self.current_summary_index + 1) % len(self.summaries)  
+            self.summary_display.setText(self.summaries[self.current_summary_index])
 
-        self.animation = QPropertyAnimation(self.fade_effect, b"opacity")
-        self.animation.setDuration(900)  
-        self.animation.setStartValue(0.0)
-        self.animation.setEndValue(1.0)
-        self.animation.start()
-        
+            self.animation = QPropertyAnimation(self.fade_effect, b"opacity")
+            self.animation.setDuration(900)  
+            self.animation.setStartValue(0.0)
+            self.animation.setEndValue(1.0)
+            self.animation.start()
+            
         
         
     # ================== 🔹 search FUNCTION ==================

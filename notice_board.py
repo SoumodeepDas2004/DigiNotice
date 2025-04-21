@@ -180,7 +180,7 @@ class NoticeBoard(QWidget):
 
         self.notice_container.setLayout(self.notice_layout)
         self.scroll_area.setWidget(self.notice_container)
-        self.scroll_area.setFixedSize(1500,600)
+        self.scroll_area.setFixedSize(1500,500)
         self.scroll_area.setAlignment(Qt.AlignCenter )
         self.notice_scroll.addWidget(self.scroll_area)
         self.layout.addLayout(self.notice_scroll)
@@ -247,7 +247,7 @@ class NoticeBoard(QWidget):
             notice_label.setAlignment(Qt.AlignLeft)
             notice_label.setWordWrap(True)
             self.notice_level_container = QHBoxLayout()
-            notice_label.setFixedSize(1200, 180)
+            notice_label.setFixedSize(1200, 90)
             self.notice_level_container.addWidget(notice_label)
             self.notice_layout.addLayout(self.notice_level_container)
             
@@ -296,29 +296,6 @@ class NoticeBoard(QWidget):
 
     # ================== 🔹 CHANGE SUMMARY TEXT & LOOP ==================
 
-    # --slide_out_summary effect commented--
-    '''def slide_out_summary(self):
-        """Slide out text effect before changing the summary."""
-        self.animation = QPropertyAnimation(self.summary_display, b"pos")
-        self.animation.setDuration(500)  # Smooth slide-out
-        self.animation.setStartValue(self.summary_display.pos())  # Start position
-        self.animation.setEndValue(self.summary_display.pos() + QPoint(-self.summary_display.width(), 0))  # Move left
-
-        self.animation.finished.connect(self.change_summary_text)  # Call after animation
-        self.animation.start()'''
-
-    '''def change_summary_text(self):
-        """Update the summary text and slide it back in."""
-        self.current_summary_index = (self.current_summary_index + 1) % len(self.summaries)  
-        self.summary_display.setText(self.summaries[self.current_summary_index])
-
-        self.animation = QPropertyAnimation(self.summary_display, b"pos")
-        self.animation.setDuration(500)  # Smooth slide-in
-        self.animation.setStartValue(self.summary_display.pos() + QPoint(self.summary_display.width(), 0))  # Start from right
-        self.animation.setEndValue(self.summary_display.pos())  # Move back to original position
-
-        self.animation.start()'''
-
     def change_summary_text(self):
         """Update the summary and fade it back in smoothly in a loop."""
         if len(self.summaries) != 0: 
@@ -331,7 +308,6 @@ class NoticeBoard(QWidget):
             self.animation.setEndValue(1.0)
             self.animation.start()
             
-        
         
     # ================== 🔹 search FUNCTION ==================
 
@@ -715,13 +691,13 @@ class NoticeBoard(QWidget):
             return
 
         for index, notice in enumerate(notices, start=1):
-            id, title,content, summary, file_path,created_at= notice[:6]
+            id, title,content, summary, file_path,category,created_at= notice[:7]
             notice_frame = QFrame()
             notice_frame.setFrameShape(QFrame.Box)
 
             notice_layout = QVBoxLayout(notice_frame)
 
-            title_label = QLabel(f"{index} 📰 : <b>{title}</b> at ::({created_at})")
+            title_label = QLabel(f"<b>{index}. 📰 {title} 🕒 Posted on: {created_at}</b>")
             title_label.setStyleSheet("font-size: 20px;")
             title_label.setWordWrap(True)
             title_label.setFixedHeight(30)

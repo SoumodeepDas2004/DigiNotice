@@ -108,7 +108,7 @@ class AdminPanel(QWidget):
         self.layout.addLayout(search_layout)
         # 🔹 List of Notices
         self.notice_list = QListWidget()
-        self.notice_list.setFixedSize(1900, 400)
+        self.notice_list.setFixedSize(1900, 300)
         self.notice_list.setStyleSheet( """
                                 QListWidget{background-color: rgba(0,0,0,150); color: #dbbc09; font-weight: bold; border: 2px solid #02f707; border-radius: 10px; font-size: 20px; padding :5px;} 
                                 QListWidget::item{padding: 2px; border: 1px solid red; margin: 3px;}
@@ -168,7 +168,7 @@ class AdminPanel(QWidget):
         # 🔹 List of Users
         
         self.user_list = QListWidget()
-        self.user_list.setFixedSize(1900,170)
+        self.user_list.setFixedSize(1900,150)
         
         self.user_list.setStyleSheet(   """
                                         QListWidget{background-color: rgba(0,0,0,150); color: yellow; font-weight:bold ; border:2px solid #02f707 ; border-radius: 10px;display: flex;align-items: center;}

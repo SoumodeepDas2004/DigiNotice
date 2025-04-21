@@ -130,7 +130,7 @@ def get_latest_notices(limit=4, category=None):
                     except Exception as e:
                         content = f"❌ Error reading file: {e}"
                 else:
-                    content = " ".join(summary.split()[:35]) + "..."  # Display first 35 words of summary
+                    content = " ".join(summary.split()[:50]) + "..."  # Display first 50 words of summary
             else:
                 content = "❌ File not found"
 

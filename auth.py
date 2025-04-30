@@ -94,6 +94,7 @@ class LoginPage(QWidget):
             print(f"🟢 login_user() returned: {user_data}")  # Debugging statement
             
             if user_data:
+                self.label.setText("Enter Your Unique ID & Password")
                 self.main_window.login_success(user_data[0], user_data[1])  # ✅ Call login_success()
             else:
                 self.label.setText("❌ Invalid Credentials!")

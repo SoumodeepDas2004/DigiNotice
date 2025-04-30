@@ -199,7 +199,7 @@ class ProfilePage(QWidget):
             self.profile_pic_path = new_path  # ✅ Store the new path
             self.profile_pic_label.setPixmap(QPixmap(self.profile_pic_path).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
-            QMessageBox.information(self, "Success", "✅ Profile picture updated successfully!")
+            QMessageBox.information(self, "Success", "✅ Profile picture updated successfully! Relogin to see changes!")
 
     # ================== 🔹 LOAD USER DATA ==================
     def load_user_data(self,unique_id):
@@ -209,7 +209,7 @@ class ProfilePage(QWidget):
         
         query = "SELECT name, password, profile_pic_path FROM users WHERE unique_id = %s"
         result = db.fetch_data(query, (unique_id,))
-
+        unique_id=str(unique_id)
         if result:
             self.unique_id_input.setText(unique_id)
             self.name_input.setText(result[0][0])  # Load name
@@ -237,7 +237,7 @@ class ProfilePage(QWidget):
     def go_back(self):
         """Redirect the user to the correct page after editing their profile."""
         if hasattr(self.main_widget, "logged_in_user_id"):
-            if self.main_widget.logged_in_user_id == "0001":  # ✅ If admin (ID = 0001)
+            if self.main_widget.logged_in_user_id ==int( "0001"):  # ✅ If admin (ID = 0001)
                 self.main_widget.stack.setCurrentWidget(self.main_widget.admin_panel_page)
             else:
                 self.main_widget.stack.setCurrentWidget(self.main_widget.notice_board_page)

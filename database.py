@@ -15,7 +15,7 @@ class Database:
                 user="admin092004",
                 password="@Admin2004",
                 database="notice_board_db",
-                auth_plugin='mysql_native_password',  # <- this is important
+                auth_plugin='mysql_native_password', 
                 autocommit=True  # ✅ Auto-commit changes
             )
             self.cursor = self.conn.cursor()
@@ -49,12 +49,12 @@ class Database:
         notice_table_query = """
         CREATE TABLE IF NOT EXISTS notices (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(255),
+            title VARCHAR(255) NOT NULL,
             content TEXT,
             summary TEXT,
             file_path VARCHAR(255),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            category VARCHAR(50) DEFAULT 'ALL'
+            category VARCHAR(50) DEFAULT 'ALL',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """
         self.execute_query(user_table_query)

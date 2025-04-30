@@ -237,7 +237,7 @@ class ProfilePage(QWidget):
     def go_back(self):
         """Redirect the user to the correct page after editing their profile."""
         if hasattr(self.main_widget, "logged_in_user_id"):
-            if self.main_widget.logged_in_user_id ==int( "0001"):  # ✅ If admin (ID = 0001)
+            if self.main_widget.logged_in_user_id =="0001":  # ✅ If admin (ID = 0001)
                 self.main_widget.stack.setCurrentWidget(self.main_widget.admin_panel_page)
             else:
                 self.main_widget.stack.setCurrentWidget(self.main_widget.notice_board_page)

@@ -53,7 +53,7 @@ class DigitalNoticeBoard(QMainWindow):
         self.chatbot_widget = DigiBot()
 
         # ✅ Redirect to appropriate page
-        if unique_id == int("0001"):  
+        if unique_id == "0001":  
             self.admin_panel_page = AdminPanel(self)  # ✅ Create admin panel
             self.stack.addWidget(self.admin_panel_page)
             self.stack.setCurrentWidget(self.admin_panel_page)  # Redirect to admin panel

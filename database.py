@@ -40,7 +40,7 @@ class Database:
         """Creates required tables if they do not exist."""
         user_table_query = """
         CREATE TABLE IF NOT EXISTS users (
-            unique_id INT PRIMARY KEY,
+            unique_id VARCHAR(10) PRIMARY KEY,
             name VARCHAR(255),
             password VARCHAR(255),
             profile_pic_path VARCHAR(255) DEFAULT 'profile_pics/default.jpg'

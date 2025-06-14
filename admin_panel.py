@@ -10,7 +10,8 @@ from utils import summarize_file
 from trainBot_ui import TrainBotUI
 import os
 from utils import clear_layout  # if not already imported
-
+import shutil
+import time
 class AdminPanel(QWidget):
     def __init__(self, main_window):
         super().__init__()
@@ -275,9 +276,27 @@ class AdminPanel(QWidget):
         file_path, _ = QFileDialog.getOpenFileName(self, "Upload Notice", "", "PDF Files (*.pdf);;Image Files (*.png *.jpg *.jpeg)")
 
         if file_path:
+              # 🔹 Create destination folder if not exists
+            os.makedirs("noticesdata", exist_ok=True)
+
+            # 🔹 Create safe and unique file name
+            safe_title = "_".join(Noticename.lower().split())
+            timestamp = str(int(time.time()))
+            ext = os.path.splitext(file_path)[1]
+            new_filename = f"{safe_title}_{timestamp}{ext}"
+            new_path = os.path.join("noticesdata", new_filename)
+
+            try:
+                shutil.copy(file_path, new_path)
+            except Exception as e:
+                QMessageBox.critical(self, "Copy Failed", f"❌ Error copying file:\n{e}")
+                return
+
             category = self.category_dropdown.currentText()
             summary = summarize_file(file_path)
-            add_notice(Noticename, "Content extracted from file", summary, file_path, category)
+            # ✅ Convert to relative path before saving
+            relative_path = os.path.relpath(new_path).replace("\\", "/")
+            add_notice(Noticename, "Content extracted from file", summary, relative_path, category)
             self.refresh_notices()
             QMessageBox.information(self, "Success", "✅ Notice uploaded successfully!")
 

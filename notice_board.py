@@ -266,14 +266,21 @@ class NoticeBoard(QWidget):
                 self.notice_layout.setSpacing(5)
             
     def download_file(self, file_path):
+        
         """Opens the file location to let the user download it."""
-        if os.path.exists(file_path):
+        # ✅ Get base directory (where this script is located)
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # ✅ Convert relative path to absolute
+        abs_path = os.path.join(base_dir, file_path)
+
+        if os.path.exists(abs_path):
             try:
-                os.startfile(file_path)  # ✅ Open in default application
+                os.startfile(abs_path)  # ✅ Open in default app (PDF viewer, image viewer, etc.)
             except Exception as e:
-                QMessageBox.warning(self, "Error", f"❌ Cannot open file: {e}")
+                QMessageBox.warning(self, "Error", f"❌ Cannot open file:\n{e}")
         else:
-            QMessageBox.warning(self, "Error", "❌ File not found!")
+            QMessageBox.warning(self, "Error", f"❌ File not found!\nPath: {abs_path}")
 
     # ================== 🔹 LOAD & LOOP SUMMARIES ==================
     def load_summaries(self):

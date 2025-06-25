@@ -8,7 +8,10 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 from database import Database
 import shutil
-
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt5.QtGui import QPixmap
+from urllib.request import urlopen
+import cloudinary.uploader
 #from PyQt5.QtWidgets import QApplication
 
 db = Database()
@@ -178,8 +181,10 @@ class ProfilePage(QWidget):
         layout.addLayout(fotbutHbox)
 
     # ================== 🔹 PROFILE PICTURE UPLOAD ==================
+
+
     def upload_profile_picture(self):
-        """Allows the user to upload a profile picture and updates the database."""
+        """Uploads profile picture to Cloudinary and updates database with the URL."""
         file_path, _ = QFileDialog.getOpenFileName(self, "Select Profile Picture", "", "Images (*.png *.jpg *.jpeg)")
         
         if file_path:
@@ -187,19 +192,35 @@ class ProfilePage(QWidget):
             if not unique_id:
                 QMessageBox.warning(self, "Error", "❌ Unique ID is missing!")
                 return
-            
-            new_path = f"profile_pics/{unique_id}.jpg"  # ✅ Store as user_id.jpg
-            os.makedirs("profile_pics", exist_ok=True)
-            shutil.copy(file_path, new_path)  # ✅ Save the new profile picture
 
-            # ✅ Update the profile picture path in the database
-            query = "UPDATE users SET profile_pic_path = %s WHERE unique_id = %s"
-            db.execute_query(query, (new_path, unique_id))
-            
-            self.profile_pic_path = new_path  # ✅ Store the new path
-            self.profile_pic_label.setPixmap(QPixmap(self.profile_pic_path).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            try:
+                # ✅ Upload to Cloudinary
+                upload_result = cloudinary.uploader.upload(
+                    file_path,
+                    folder=f"diginotice/profile_pics/{unique_id}",
+                    public_id=unique_id,
+                    overwrite=True,
+                    resource_type="image",
+                    upload_preset="diginotice_unsigned"
+                )
+                cloud_url = upload_result.get("secure_url", "")
+                if not cloud_url:
+                    raise Exception("Cloudinary upload failed!")
 
-            QMessageBox.information(self, "Success", "✅ Profile picture updated successfully! Relogin to see changes!")
+                # ✅ Update profile picture URL in database
+                query = "UPDATE users SET profile_pic_path = %s WHERE unique_id = %s"
+                db.execute_query(query, (cloud_url, unique_id))
+
+                # ✅ Display the new picture from URL
+                data = urlopen(cloud_url).read()
+                pixmap = QPixmap()
+                pixmap.loadFromData(data)
+                self.profile_pic_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+
+                QMessageBox.information(self, "Success", "✅ Profile picture updated and uploaded to Cloudinary!")
+            except Exception as e:
+                QMessageBox.critical(self, "Upload Failed", f"❌ Upload failed: {e}")
+
 
     # ================== 🔹 LOAD USER DATA ==================
     def load_user_data(self,unique_id):

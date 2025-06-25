@@ -10,8 +10,11 @@ import cv2  # OpenCV for image handling
 import re
 import nltk
 from nltk.tokenize.punkt import PunktSentenceTokenizer
+from cloudinary.uploader import upload as cloud_upload
+from cloudinary.exceptions import Error as CloudinaryError
+from cloudinary_config import cloudinary
 
-
+from cloudinary.uploader import upload as cloudinary_upload
 #add helping function from pages with gui
 db = Database()
 
@@ -59,8 +62,13 @@ def get_all_users():
 
 # 🔹 Delete User by Unique ID (Admin Function)
 def delete_user(unique_id):
-    query = "DELETE FROM users WHERE unique_id = %s"
-    db.execute_query(query, (unique_id,))
+    try:
+        query = "DELETE FROM users WHERE unique_id = %s"
+        db.execute_query(query, (unique_id,))
+        print(f"✅ Deleted user: {unique_id}")
+    except Exception as e:
+        print(f"❌ Failed to delete user: {e}")
+
 
 
 
@@ -68,8 +76,8 @@ def delete_user(unique_id):
 
 # 🔹 Add Notice
 def add_notice(title, content, summary, file_path, category):
-    """
-    Add a new notice to the database with title, content, summary, file path, and category.
+    
+    """    Add a new notice to the database with title, content, summary, file path, and category.
 
     Args:
         title (str): Title of the notice.
@@ -78,12 +86,36 @@ def add_notice(title, content, summary, file_path, category):
         file_path (str): Path to the notice file (PDF/image).
         category (str): Category of the notice (e.g., Academics, Events, Exams, etc.)
     """
-    query = """
-    INSERT INTO notices (title, content, summary, file_path, category)
-    VALUES (%s, %s, %s, %s, %s)
-    """
+
+    query="""INSERT INTO notices (title, content, summary, file_path, category)
+    VALUES (%s, %s, %s, %s, %s)"""
+
     params = (title, content, summary, file_path, category)
     db.execute_query(query, params)
+
+    try:
+        upload_result = cloudinary_upload(
+            local_file_path,
+            resource_type="auto",
+            folder="diginotice/notices/",  # Optional folder structure in Cloudinary,
+            upload_preset="diginotice_unsigned",
+            type="upload" , # ✅ Forces public access
+            access_mode="public"  # ✅ Add this line to ensure delivery is allowed
+        )
+        cloud_url = upload_result.get("secure_url", "")
+
+        if not cloud_url:
+            print("❌ Failed to get Cloudinary URL.")
+            return
+
+        
+        print("✅ Notice added with Cloudinary file.")
+        print("📤 Uploaded to:", cloud_url)
+
+    
+    except Exception as e:
+        print(f"❌ Cloudinary upload or DB insert failed: {e}")
+
 
 # 🔹 Get Latest Notices (for Notice Board)
 def get_latest_notices(limit=4, category=None):
@@ -139,6 +171,38 @@ def get_latest_notices(limit=4, category=None):
     print(f"✅ Processed Notices: {processed_notices}")  # Debugging: Check processed notices
     return processed_notices
 
+# 🔹 Get Latest Notices (for Notice Board)
+def get_latest_notices(limit=4, category=None):
+        print("🔍 Fetching notices from database...")
+
+        if category and category != "All":
+            query = """
+                SELECT title, content, file_path, summary, created_at 
+                FROM notices 
+                WHERE LOWER(category) = LOWER(%s) 
+                ORDER BY created_at DESC 
+                LIMIT %s
+            """
+            notices = db.fetch_data(query, (category.lower(), limit))
+        else:
+            query = """
+                SELECT title, content, file_path, summary, created_at 
+                FROM notices 
+                ORDER BY created_at DESC 
+                LIMIT %s
+            """
+            notices = db.fetch_data(query, (limit,))
+
+        processed_notices = []
+        for title, content, file_path, summary, notice_time in notices:
+            if not summary or summary.lower().startswith("❌ file not found"):
+                summary_display = "❌ File not found"
+            else:
+                summary_display = " ".join(summary.split()[:50]) + "..."
+
+            processed_notices.append((title, summary_display, file_path, notice_time))
+
+        return processed_notices
 
 # 🔹 Get Summarized Notices (for Rotating Summaries)
 def get_summarized_notices(limit=5):

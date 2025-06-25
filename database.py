@@ -3,21 +3,35 @@ import mysql.connector
 class Database:
     def __init__(self):
         """Initialize the database connection and ensure DB & tables exist."""
-        self.create_database_if_not_exists()
+        #self.create_database_if_not_exists()
         self.connect_db()
         self.create_tables_if_not_exist()
-
+    """DATABASE URL- mysql://root:dWdtJEIlNZDjqDBIFYWYVJyAmnENjQCl@hopper.proxy.rlwy.net:55578/railway"""
     def connect_db(self):
         """Establish a new database connection."""
         try:
             self.conn = mysql.connector.connect(
+            host="hopper.proxy.rlwy.net",
+            port=55578,
+            user="root",
+            password="dWdtJEIlNZDjqDBIFYWYVJyAmnENjQCl",
+            database="railway",
+            autocommit=True
+        )
+            
+            
+            
+            
+            
+            
+            """self.conn = mysql.connector.connect(
                 host="127.0.0.1",
                 user="admin092004",
                 password="@Admin2004",
                 database="notice_board_db",
                 auth_plugin='mysql_native_password', 
                 autocommit=True  # ✅ Auto-commit changes
-            )
+            )"""
             self.cursor = self.conn.cursor()
             print("✅ Database Connection Successful!")
         except mysql.connector.Error as e:

@@ -243,12 +243,24 @@ class NoticeBoard(QWidget):
                 item.widget().deleteLater()
         n=1
         for title, content, file_path, notice_time in latest_notices:
-            notice_label = QLabel(f"{n}<b>📃: {title}</b> at ({notice_time})\n{content}")
+            notice_label = QLabel(f"{n}<b>📃: {title}</b> at ({notice_time})")
+            content_label = QLabel(content)
+            
+            scontainer=QVBoxLayout()
             notice_label.setAlignment(Qt.AlignLeft)
             notice_label.setWordWrap(True)
-            self.notice_level_container = QHBoxLayout()
-            notice_label.setFixedSize(1200, 90)
-            self.notice_level_container.addWidget(notice_label)
+            notice_label.setStyleSheet("font-size: 25px; font-weight:bold;")
+            notice_label.setWordWrap(True)
+            notice_label.setFixedHeight(35)
+
+            content_label.setWordWrap(True)
+            
+            scontainer.addWidget(notice_label)
+            scontainer.addWidget(content_label)
+            
+            self.notice_level_container = QVBoxLayout()
+
+            self.notice_level_container.addLayout(scontainer)
             self.notice_layout.addLayout(self.notice_level_container)
             
             n+=1
@@ -380,6 +392,7 @@ class NoticeBoard(QWidget):
                         background-color: cyan;
                         border: 2px solid red;
                         border-radius: 8px;
+                        padding:5px; 
                     """)
                     download_button.clicked.connect(lambda checked, path=file_path: self.download_file(path))
 
@@ -698,16 +711,16 @@ class NoticeBoard(QWidget):
             return
 
         for index, notice in enumerate(notices, start=1):
-            id, title,content, summary, file_path,category,created_at= notice[:7]
+            id, title,content, summary, file_path,created_at,category= notice[:7]
             notice_frame = QFrame()
             notice_frame.setFrameShape(QFrame.Box)
 
             notice_layout = QVBoxLayout(notice_frame)
 
             title_label = QLabel(f"<b>{index}. 📰 {title} 🕒 Posted on: {created_at}</b>")
-            title_label.setStyleSheet("font-size: 20px;")
+            title_label.setStyleSheet("font-size: 25px;")
             title_label.setWordWrap(True)
-            title_label.setFixedHeight(30)
+            title_label.setFixedHeight(35)
             content_label = QLabel(summary)
             content_label.setWordWrap(True)
             content_label.setStyleSheet("font-size: 16px;")

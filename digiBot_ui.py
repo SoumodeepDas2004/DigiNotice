@@ -149,7 +149,8 @@ class DigiBot(QWidget):
             return self.brain[best_match]
         else:
             self.save_unknown(user_query)
-            return "❓ I don't know that yet, but I'll learn it soon!"
+            return "🤖 Sorry, I haven’t learned that yet.I’ll make sure to remember it next time!"
+
 
     def process_input(self):
         """Handles text input from user."""
@@ -168,10 +169,14 @@ class DigiBot(QWidget):
 
     def handle_recognized_text(self, text):
         """Handles the recognized text from the voice thread."""
-        self.chat_display.append(f"🧑 You (voice): {text}")
+        if not text.strip():
+            self.chat_display.append("🤖 Bot: Sorry, I didn't catch that.\n")
+            return
         
+        self.chat_display.append(f"🧑 You (voice): {text}")
         response = self.get_response(text)
         self.chat_display.append(f"🤖 Bot: {response}\n")
+
 
     def handle_error(self, error_message):
         """Handles errors from the voice recognition thread."""

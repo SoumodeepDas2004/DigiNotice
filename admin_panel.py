@@ -11,7 +11,11 @@ from trainBot_ui import TrainBotUI
 import os
 from utils import clear_layout  # if not already imported
 import shutil
-import time
+import time  
+from cloudinary_config import cloudinary
+from database import Database
+db = Database()
+
 class AdminPanel(QWidget):
     def __init__(self, main_window):
         super().__init__()
@@ -52,38 +56,80 @@ class AdminPanel(QWidget):
 
     # ================== 🔹 HEADER SECTION ==================
     def setup_header_section(self):
-        """Setup Admin Panel Title & Profile Picture."""
-        header_layout = QHBoxLayout()
+            """Setup Admin Panel Title & Profile Picture."""
+            header_layout = QHBoxLayout()
 
-        self.title = QLabel("🔧 Admin Panel")
-        self.title.setFixedSize(300,80)
-        self.title.setAlignment(Qt.AlignCenter)
-        self.title.setStyleSheet(""" QLabel{
-        background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #045e28, stop: 1 #17bb2c);
-        color: white;
-        font:25px;
-        font-weight:bold;}
-        """)
+            self.title = QLabel("🔧 Admin Panel")
+            self.title.setFixedSize(300, 80)
+            self.title.setAlignment(Qt.AlignCenter)
+            self.title.setStyleSheet("""
+                QLabel {
+                    background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #045e28, stop: 1 #17bb2c);
+                    color: white;
+                    font-size: 25px;
+                    font-weight: bold;
+                }
+            """)
 
-        # 🔹 Admin Profile Picture
-        self.profile_pic_label = QLabel()
-        self.profile_pic_label.setFixedSize(50, 50)
-        self.profile_pic_label.setScaledContents(True)
-        self.profile_pic_label.setStyleSheet("border-radius: 25px; border: 4px solid black;")
-        self.load_admin_profile_picture()
+            # 🔹 Admin Profile Picture
+            self.profile_pic_label = QLabel()
+            self.profile_pic_label.setFixedSize(50, 50)
+            self.profile_pic_label.setScaledContents(True)
+            self.profile_pic_label.setStyleSheet("border-radius: 25px; border: 4px solid black;")
 
-        header_layout.addWidget(self.title)
-        header_layout.addStretch()
-        header_layout.addWidget(self.profile_pic_label)
+            # 🔹 Load admin profile pic from DB (Cloudinary URL)
+            self.load_user_data("0001")  # 👈 Ensure this user exists in DB
 
-        self.layout.addLayout(header_layout)
+            # 🔹 Assemble layout
+            header_layout.addWidget(self.title)
+            header_layout.addStretch()
+            header_layout.addWidget(self.profile_pic_label)
 
-    def load_admin_profile_picture(self):
-        """Loads the admin's profile picture or default image."""
-        profile_pic_path = f"profile_pics/{self.uniqueid}.jpg"
-        if not os.path.exists(profile_pic_path):
-            profile_pic_path = "profile_pics/default.jpg"
-        self.profile_pic_label.setPixmap(QPixmap(profile_pic_path))
+            self.layout.addLayout(header_layout)
+        
+        
+    def set_default_profile_picture(self):
+        """Fallback profile picture if loading fails."""
+        self.profile_pic_label.setPixmap(QPixmap("profile_pics/default.jpg").scaled(
+            50, 50, Qt.KeepAspectRatio, Qt.SmoothTransformation
+        ))
+   
+        
+        
+        
+        
+    def load_user_data(self, unique_id):
+        """Loads user name and profile picture from DB."""
+        self.unique_id = unique_id  # Store for future use
+
+        query = "SELECT name, profile_pic_path FROM users WHERE unique_id = %s"
+        user = db.fetch_data(query, (unique_id,))
+        
+        if user:
+            name, profile_pic_url = user[0]
+            if profile_pic_url:
+                self.set_profile_picture_from_url(profile_pic_url)
+            else:
+                self.set_default_profile_picture()
+        else:
+            print("❌ Admin user not found in database.")
+            self.set_default_profile_picture()
+            
+    def set_profile_picture_from_url(self, url):
+        """Sets profile picture from a Cloudinary URL."""
+        from urllib.request import urlopen
+        from PyQt5.QtGui import QImage
+
+        try:
+            image_data = urlopen(url).read()
+            image = QImage()
+            image.loadFromData(image_data)
+            pixmap = QPixmap(image)
+            self.profile_pic_label.setPixmap(pixmap.scaled(50, 50, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        except Exception as e:
+            print(f"❌ Error loading image from URL: {e}")
+            self.set_default_profile_picture()
+
 
     # ================== 🔹 NOTICE MANAGEMENT SECTION ==================
     def setup_notice_management(self):
@@ -166,15 +212,18 @@ class AdminPanel(QWidget):
         self.user_label.setStyleSheet("QLabel{color: white; font-size: 18px; font-weight: bold;}")
         self.layout.addWidget(self.user_label)
 
+
         # 🔹 List of Users
         
         self.user_list = QListWidget()
         self.user_list.setFixedSize(1900,150)
-        
+        self.user_list.setSelectionMode(QListWidget.SingleSelection)
+        self.user_list.setFocusPolicy(Qt.StrongFocus)
         self.user_list.setStyleSheet(   """
                                         QListWidget{background-color: rgba(0,0,0,150); color: yellow; font-weight:bold ; border:2px solid #02f707 ; border-radius: 10px;display: flex;align-items: center;}
                                         QListWidget::item{padding: 2px; border: 1px solid red; margin: 3px; display: flex;align-items: center; }
-                                    """)
+                                        QListWidget::item:selected {background-color: #00ff88;color: black;}
+                                        """)
         
         self.layout.addWidget(self.user_list)
         self.refresh_users()
@@ -339,12 +388,32 @@ class AdminPanel(QWidget):
         self.user_list.setItemAlignment(Qt.AlignHCenter)
 
     def delete_selected_user(self):
-        """Deletes a selected user."""
+        """Deletes the selected user from the database with confirmation."""
         selected_item = self.user_list.currentItem()
-        if selected_item:
-            unique_id = selected_item.text().split(" - ")[0]  # Extract Unique ID
-            delete_user(unique_id)
-            self.refresh_users()
+
+        if not selected_item:
+            QMessageBox.warning(self, "No User Selected", "❌ Please select a user to delete.")
+            return
+        print("✔️ Selected:", selected_item.text())  # ✅ See if it prints
+
+        # Extract unique ID from format "unique_id - name"
+        unique_id = selected_item.text().split(" - ")[0].strip()
+
+        confirm = QMessageBox.question(
+            self,
+            "Confirm Deletion",
+            f"Are you sure you want to delete user '{unique_id}'?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+
+        if confirm == QMessageBox.Yes:
+            try:
+                delete_user(unique_id)  # Call your utils.py function
+                QMessageBox.information(self, "Deleted", f"✅ User '{unique_id}' deleted successfully.")
+                self.refresh_users()
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"❌ Failed to delete user:\n{e}")
+
 
     # ================== 🔹 PROFILE MANAGEMENT ==================
     def open_profile_editor(self):

@@ -6,6 +6,8 @@ from digiBot_ui import DigiBot
 from auth import LoginPage
 from PyQt5.QtGui import QIcon
 import sys
+from urllib.request import urlopen
+from PyQt5.QtGui import QPixmap
 
 class DigitalNoticeBoard(QMainWindow):
     def __init__(self):

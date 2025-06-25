@@ -6,3 +6,4 @@ cloudinary.config(
   api_key = "791828955671337",
   api_secret = "BeGhJ7r0Og5KKXoOy4o-Upxw87U"
 )
+#pip install cloudinary
